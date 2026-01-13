@@ -19,7 +19,7 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
 # Mở port 8080
-EXPOSE 8080
+EXPOSE 8082
 
 # Chạy ứng dụng (Vẫn giữ cấu hình tối ưu RAM)
 ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]

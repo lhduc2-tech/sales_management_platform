@@ -1,0 +1,52 @@
+application:
+  version: api/v1
+  path:
+    base:
+      private: /private/${application.version}
+      public: /public/${application.version}
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+    open-in-view: false
+
+  data:
+    redis:
+      url: ${UPSTASH_REDIS_REST_URL}
+      password: ${UPSTASH_REDIS_REST_TOKEN}
+
+s3:
+  endpoint: ${S3_ENDPOINT}
+  region: ${S3_REGION}
+  access-key-id: ${S3_KEY_ID}
+  secret-access-key: ${S3_ACCESS_KEY}
+  bucket-name: ${S3_BUCKET_NAME}
+
+server:
+  port: 8082
+  servlet:
+    context-path: ${SERVER_CTX_PATH}
+
+proxy:
+  enable: false
+  host: localhost
+  port: 8082
+
+logging:
+  level:
+    org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
