@@ -1,5 +1,5 @@
 package com.vanesline.sales.dto.User;
 
-public class UserCrateRequest {
+public class UserCreateRequest {
     
 }
