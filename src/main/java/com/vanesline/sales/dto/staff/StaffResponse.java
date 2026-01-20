@@ -30,4 +30,10 @@ public class StaffResponse {
 
     @JsonProperty("updated_at")
     private OffsetDateTime updatedAt;
+
+    @JsonProperty("created_by")
+    private String createdBy;
+
+    @JsonProperty("updated_by")
+    private String updatedBy;
 }

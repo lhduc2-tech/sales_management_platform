@@ -15,6 +15,8 @@ import lombok.experimental.SuperBuilder;
 public class SearchStaffRequest extends BaseRequest {
 
     private String fullName;
+
     private String email;
+
     private String phoneNumber;
 }
