@@ -44,6 +44,16 @@ public class User extends BaseEntity {
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
+    @Column(name = "google_id", unique = true)
+    private String googleId;
+
+    @Column(name = "auth_provider")
+    @Builder.Default
+    private String authProvider = "LOCAL";
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private Set<UserRole> userRoles = new HashSet<>();

@@ -1,10 +1,13 @@
 package com.vanesline.sales.controller;
 
+import com.vanesline.sales.dto.auth.GoogleAuthRequest;
 import com.vanesline.sales.dto.auth.LoginRequest;
 import com.vanesline.sales.dto.auth.LoginResponse;
+import com.vanesline.sales.dto.auth.RegisterRequest;
 import com.vanesline.sales.service.contract.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +31,18 @@ public class AuthController {
     @PostMapping("${application.path.base.public}/auth/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = authenticationService.login(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("${application.path.base.public}/auth/register")
+    public ResponseEntity<LoginResponse> register(@Valid @RequestBody RegisterRequest request) {
+        LoginResponse response = authenticationService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("${application.path.base.public}/auth/google")
+    public ResponseEntity<LoginResponse> googleAuth(@Valid @RequestBody GoogleAuthRequest request) {
+        LoginResponse response = authenticationService.googleAuth(request);
         return ResponseEntity.ok(response);
     }
 

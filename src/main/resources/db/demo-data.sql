@@ -23,8 +23,7 @@ INSERT INTO roles (id, code, name, description, status, created_at)
 VALUES 
     ('b1111111-1111-1111-1111-111111111111', 'ADMIN', 'Administrator', 'Full system access', 'ACTIVE', NOW()),
     ('b2222222-2222-2222-2222-222222222222', 'MANAGER', 'Manager', 'Manage products and orders', 'ACTIVE', NOW()),
-    ('b3333333-3333-3333-3333-333333333333', 'SALES', 'Sales Staff', 'Handle orders', 'ACTIVE', NOW()),
-    ('b4444444-4444-4444-4444-444444444444', 'VIEWER', 'Viewer', 'Read-only access', 'ACTIVE', NOW())
+    ('b3333333-3333-3333-3333-333333333333', 'SALES', 'Sales Staff', 'Handle orders', 'ACTIVE', NOW())
 ON CONFLICT (id) DO NOTHING;
 
 -- 3. Assign Permissions to Roles
@@ -61,14 +60,6 @@ VALUES
     ('b3333333-3333-3333-3333-333333333333', 'a9999999-9999-9999-9999-999999999999')
 ON CONFLICT DO NOTHING;
 
--- VIEWER: Read-only
-INSERT INTO role_permissions (role_id, permission_id)
-VALUES 
-    ('b4444444-4444-4444-4444-444444444444', 'a1111111-1111-1111-1111-111111111111'),
-    ('b4444444-4444-4444-4444-444444444444', 'a6666666-6666-6666-6666-666666666666'),
-    ('b4444444-4444-4444-4444-444444444444', 'a8888888-8888-8888-8888-888888888888')
-ON CONFLICT DO NOTHING;
-
 -- 4. Insert Users (Password: password123)
 INSERT INTO users (id, username, email, password_hash, status, is_system, created_at, updated_at)
 VALUES 
@@ -80,9 +71,6 @@ VALUES
      'ACTIVE', false, NOW(), NOW()),
     ('c3333333-3333-3333-3333-333333333333', 'sales01', 'sales01@example.com', 
      '$2a$10$N9qo8uLOickgx2ZMRZoMy.Mrq4P6U6TvDsuGi3zThh6q5C8lvaO4K', 
-     'ACTIVE', false, NOW(), NOW()),
-    ('c4444444-4444-4444-4444-444444444444', 'viewer', 'viewer@example.com', 
-     '$2a$10$N9qo8uLOickgx2ZMRZoMy.Mrq4P6U6TvDsuGi3zThh6q5C8lvaO4K', 
      'ACTIVE', false, NOW(), NOW())
 ON CONFLICT (id) DO NOTHING;
 
@@ -91,8 +79,7 @@ INSERT INTO user_roles (user_id, role_id, assigned_at)
 VALUES 
     ('c1111111-1111-1111-1111-111111111111', 'b1111111-1111-1111-1111-111111111111', NOW()), -- admin -> ADMIN
     ('c2222222-2222-2222-2222-222222222222', 'b2222222-2222-2222-2222-222222222222', NOW()), -- manager -> MANAGER
-    ('c3333333-3333-3333-3333-333333333333', 'b3333333-3333-3333-3333-333333333333', NOW()), -- sales01 -> SALES
-    ('c4444444-4444-4444-4444-444444444444', 'b4444444-4444-4444-4444-444444444444', NOW())  -- viewer -> VIEWER
+    ('c3333333-3333-3333-3333-333333333333', 'b3333333-3333-3333-3333-333333333333', NOW()) -- sales01 -> SALES
 ON CONFLICT DO NOTHING;
 
 -- =====================================================

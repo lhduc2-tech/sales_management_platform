@@ -13,29 +13,31 @@ import java.util.UUID;
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
 
-    @Query("SELECT DISTINCT u FROM User u " +
-            "LEFT JOIN FETCH u.userRoles ur " +
-            "LEFT JOIN FETCH ur.role r " +
-            "LEFT JOIN FETCH r.permissions " +
-            "WHERE u.username = :username")
-    Optional<User> findByUsernameWithRolesAndPermissions(@Param("username") String username);
+        @Query("SELECT DISTINCT u FROM User u " +
+                        "LEFT JOIN FETCH u.userRoles ur " +
+                        "LEFT JOIN FETCH ur.role r " +
+                        "LEFT JOIN FETCH r.permissions " +
+                        "WHERE u.username = :username")
+        Optional<User> findByUsernameWithRolesAndPermissions(@Param("username") String username);
 
-    @Query("SELECT DISTINCT u FROM User u " +
-            "LEFT JOIN FETCH u.userRoles ur " +
-            "LEFT JOIN FETCH ur.role")
-    List<User> findAllWithRoles();
+        @Query("SELECT DISTINCT u FROM User u " +
+                        "LEFT JOIN FETCH u.userRoles ur " +
+                        "LEFT JOIN FETCH ur.role")
+        List<User> findAllWithRoles();
 
-    @Query("SELECT u FROM User u " +
-            "LEFT JOIN FETCH u.userRoles ur " +
-            "LEFT JOIN FETCH ur.role " +
-            "WHERE u.id = :id")
-    Optional<User> findByIdWithRoles(@Param("id") UUID id);
+        @Query("SELECT u FROM User u " +
+                        "LEFT JOIN FETCH u.userRoles ur " +
+                        "LEFT JOIN FETCH ur.role " +
+                        "WHERE u.id = :id")
+        Optional<User> findByIdWithRoles(@Param("id") UUID id);
 
-    Optional<User> findByUsername(String username);
+        Optional<User> findByUsername(String username);
 
-    Optional<User> findByEmail(String email);
+        Optional<User> findByEmail(String email);
 
-    boolean existsByUsername(String username);
+        boolean existsByUsername(String username);
 
-    boolean existsByEmail(String email);
+        boolean existsByEmail(String email);
+
+        Optional<User> findByGoogleId(String googleId);
 }
