@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 public class StaffSearchCriteria {
 
     private String fullName;
+
     private String phoneNumber;
+
     private String email;
 }
