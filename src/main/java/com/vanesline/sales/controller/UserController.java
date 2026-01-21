@@ -1,6 +1,7 @@
 package com.vanesline.sales.controller;
 
 import com.vanesline.sales.dto.User.UserResponse;
+import com.vanesline.sales.entity.Role;
 import com.vanesline.sales.entity.User;
 import com.vanesline.sales.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
@@ -74,7 +75,7 @@ public class UserController {
 
     private UserResponse toUserResponse(User user) {
         List<String> roles = user.getRoles().stream()
-                .map(role -> role.getCode())
+                .map(Role::getCode)
                 .collect(Collectors.toList());
 
         return UserResponse.builder()
