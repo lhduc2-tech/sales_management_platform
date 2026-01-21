@@ -6,6 +6,7 @@ import com.vanesline.sales.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ public class JwtTokenService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    @Getter
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
@@ -103,7 +105,4 @@ public class JwtTokenService {
                 .getPayload();
     }
 
-    public long getJwtExpiration() {
-        return jwtExpiration;
-    }
 }

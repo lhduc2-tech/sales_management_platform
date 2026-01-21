@@ -34,6 +34,6 @@ public class TokenBlacklistService {
      */
     public boolean isBlacklisted(String token) {
         String key = BLACKLIST_PREFIX + token;
-        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+        return redisTemplate.hasKey(key);
     }
 }

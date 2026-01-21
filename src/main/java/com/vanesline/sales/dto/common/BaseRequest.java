@@ -14,10 +14,13 @@ public abstract class BaseRequest {
 
     @Builder.Default
     private int page = 0;
+
     @Builder.Default
     private int size = 10;
+
     @Builder.Default
     private String sortBy = "createdAt";
+
     @Builder.Default
     private String sortDir = "desc";
 }
