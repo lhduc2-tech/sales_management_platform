@@ -99,6 +99,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new DataConflictException("Email already exists: " + request.getEmail());
         }
 
+        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+            throw new DataConflictException("Phone number already exists: " + request.getPhoneNumber());
+        }
+
         // Get default ADMIN role
         Role adminRole = roleRepository.findByCode(DEFAULT_ROLE_CODE)
                 .orElseThrow(() -> new RuntimeException(
