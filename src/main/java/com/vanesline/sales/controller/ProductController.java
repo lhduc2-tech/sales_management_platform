@@ -56,6 +56,7 @@ public class ProductController {
         ProductSearchCriteria criteria = ProductSearchCriteria.builder()
                 .code(request.getCode())
                 .name(request.getName())
+                .shopId(request.getShopId())
                 .build();
 
         Sort sort = request.getSortDir().equalsIgnoreCase("asc")

@@ -38,6 +38,7 @@ public class ProductServiceImpl implements ProductService {
                 .code(request.getCode())
                 .name(request.getName())
                 .price(request.getPrice())
+                .shopId(request.getShopId())
                 .build();
 
         product.setCreatedBy(request.getCreatedBy());
@@ -62,6 +63,7 @@ public class ProductServiceImpl implements ProductService {
         product.setName(request.getName());
         product.setPrice(request.getPrice());
         product.setUpdatedBy(request.getUpdatedBy());
+        product.setShopId(request.getShopId());
 
         product = productRepository.save(product);
         return toResponse(product);
@@ -98,6 +100,7 @@ public class ProductServiceImpl implements ProductService {
     private ProductResponse toResponse(Product product) {
         return ProductResponse.builder()
                 .id(product.getId())
+                .shopId(product.getShopId())
                 .code(product.getCode())
                 .name(product.getName())
                 .price(product.getPrice())

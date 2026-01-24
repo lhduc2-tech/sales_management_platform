@@ -21,6 +21,9 @@ public class Product extends BaseEntity {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
+    @Column(name = "shop_id")
+    private UUID shopId;
+
     @Column(name = "code", nullable = false, unique = true)
     private String code;
 

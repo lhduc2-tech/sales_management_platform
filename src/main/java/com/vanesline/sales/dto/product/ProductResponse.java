@@ -24,6 +24,8 @@ public class ProductResponse {
 
     private BigDecimal price;
 
+    private UUID shopId;
+
     @JsonProperty("created_at")
     private OffsetDateTime createdAt;
 

@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -26,6 +27,8 @@ public class ProductRequest {
 
     @NotNull(message = "Price is required")
     private BigDecimal price;
+
+    private UUID shopId;
 
     @Size(max = 255)
     private String createdBy;
