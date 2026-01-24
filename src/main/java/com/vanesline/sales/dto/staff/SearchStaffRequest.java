@@ -7,6 +7,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.UUID;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
@@ -19,4 +21,6 @@ public class SearchStaffRequest extends BaseRequest {
     private String email;
 
     private String phoneNumber;
+
+    private UUID shopId;
 }

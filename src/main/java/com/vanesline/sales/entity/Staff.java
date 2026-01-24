@@ -20,6 +20,9 @@ public class Staff extends BaseEntity {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
+    @Column(name = "shop_id")
+    private UUID shopId;
+
     @Column(name = "full_name")
     private String fullName;
 

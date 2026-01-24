@@ -45,6 +45,7 @@ public class StaffServiceImpl implements StaffService {
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
+                .shopId(request.getShopId())
                 .build();
 
         staff.setCreatedBy(request.getCreatedBy());
@@ -77,6 +78,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setEmail(request.getEmail());
         staff.setPhoneNumber(request.getPhoneNumber());
         staff.setUpdatedBy(request.getUpdatedBy());
+        staff.setShopId(request.getShopId());
 
         staff = staffRepository.save(staff);
         return toResponse(staff);
@@ -115,6 +117,7 @@ public class StaffServiceImpl implements StaffService {
                 .fullName(staff.getFullName())
                 .email(staff.getEmail())
                 .phoneNumber(staff.getPhoneNumber())
+                .shopId(staff.getShopId())
                 .createdAt(staff.getCreatedAt())
                 .updatedAt(staff.getUpdatedAt())
                 .createdBy(staff.getCreatedBy())

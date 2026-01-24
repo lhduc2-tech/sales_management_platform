@@ -57,6 +57,7 @@ public class StaffController {
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
+                .shopId(request.getShopId())
                 .build();
 
         Sort sort = request.getSortDir().equalsIgnoreCase("asc")

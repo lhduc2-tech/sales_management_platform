@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -26,6 +28,8 @@ public class StaffRequest {
     @NotBlank(message = "Email is required")
     @Size(max = 255)
     private String email;
+
+    private UUID shopId;
 
     @Size(max = 255)
     private String createdBy;

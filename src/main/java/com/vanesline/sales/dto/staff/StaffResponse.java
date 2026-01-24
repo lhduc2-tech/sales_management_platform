@@ -25,6 +25,8 @@ public class StaffResponse {
 
     private String email;
 
+    private UUID shopId;
+
     @JsonProperty("created_at")
     private OffsetDateTime createdAt;
 
