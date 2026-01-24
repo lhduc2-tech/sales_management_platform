@@ -9,7 +9,7 @@ import com.vanesline.sales.exception.DataConflictException;
 import com.vanesline.sales.repository.StaffRepository;
 import com.vanesline.sales.service.contract.StaffService;
 import com.vanesline.sales.specification.StaffSpecification;
-import jakarta.persistence.EntityNotFoundException;
+import com.vanesline.sales.exception.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

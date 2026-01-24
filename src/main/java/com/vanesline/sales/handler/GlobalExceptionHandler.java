@@ -1,11 +1,13 @@
 package com.vanesline.sales.handler;
 
 import com.vanesline.sales.exception.DataConflictException;
-import jakarta.persistence.EntityNotFoundException;
+import com.vanesline.sales.exception.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
@@ -22,6 +24,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleEntityNotFoundException(EntityNotFoundException ex) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String error = String.format("The parameter '%s' of value '%s' could not be converted to type '%s'",
+                ex.getName(), ex.getValue(), ex.getRequiredType().getSimpleName());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, error);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNoResourceFoundException(NoResourceFoundException ex) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, "The requested resource was not found.");
     }
 
     @ExceptionHandler(Exception.class)
