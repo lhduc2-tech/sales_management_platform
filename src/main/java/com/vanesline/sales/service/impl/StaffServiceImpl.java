@@ -114,6 +114,7 @@ public class StaffServiceImpl implements StaffService {
     private StaffResponse toResponse(Staff staff) {
         return StaffResponse.builder()
                 .id(staff.getId())
+                .shopId(staff.getShopId())
                 .fullName(staff.getFullName())
                 .email(staff.getEmail())
                 .phoneNumber(staff.getPhoneNumber())
