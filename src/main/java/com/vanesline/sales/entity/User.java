@@ -58,18 +58,12 @@ public class User extends BaseEntity {
     @Builder.Default
     private Set<UserRole> userRoles = new HashSet<>();
 
-    /**
-     * Helper method to get roles
-     */
     public Set<Role> getRoles() {
         return userRoles.stream()
                 .map(UserRole::getRole)
                 .collect(Collectors.toSet());
     }
 
-    /**
-     * Helper method to add a role
-     */
     public void addRole(Role role) {
         UserRole userRole = UserRole.builder()
                 .id(new UserRole.UserRoleId(this.id, role.getId()))

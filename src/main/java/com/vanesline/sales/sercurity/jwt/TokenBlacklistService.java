@@ -18,9 +18,6 @@ public class TokenBlacklistService {
         this.jwtTokenService = jwtTokenService;
     }
 
-    /**
-     * Add a token to the blacklist with TTL equal to the token's remaining lifetime
-     */
     public void blacklist(String token) {
         long ttlMillis = jwtTokenService.getRemainingTtlMillis(token);
         if (ttlMillis > 0) {
@@ -29,9 +26,6 @@ public class TokenBlacklistService {
         }
     }
 
-    /**
-     * Check if a token is blacklisted
-     */
     public boolean isBlacklisted(String token) {
         String key = BLACKLIST_PREFIX + token;
         return redisTemplate.hasKey(key);

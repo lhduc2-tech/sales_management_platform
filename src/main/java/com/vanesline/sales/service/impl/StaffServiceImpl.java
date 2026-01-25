@@ -9,7 +9,7 @@ import com.vanesline.sales.exception.DataConflictException;
 import com.vanesline.sales.repository.StaffRepository;
 import com.vanesline.sales.service.contract.StaffService;
 import com.vanesline.sales.specification.StaffSpecification;
-import jakarta.persistence.EntityNotFoundException;
+import com.vanesline.sales.exception.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -45,6 +45,7 @@ public class StaffServiceImpl implements StaffService {
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
+                .shopId(request.getShopId())
                 .build();
 
         staff.setCreatedBy(request.getCreatedBy());
@@ -77,6 +78,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setEmail(request.getEmail());
         staff.setPhoneNumber(request.getPhoneNumber());
         staff.setUpdatedBy(request.getUpdatedBy());
+        staff.setShopId(request.getShopId());
 
         staff = staffRepository.save(staff);
         return toResponse(staff);
@@ -112,9 +114,11 @@ public class StaffServiceImpl implements StaffService {
     private StaffResponse toResponse(Staff staff) {
         return StaffResponse.builder()
                 .id(staff.getId())
+                .shopId(staff.getShopId())
                 .fullName(staff.getFullName())
                 .email(staff.getEmail())
                 .phoneNumber(staff.getPhoneNumber())
+                .shopId(staff.getShopId())
                 .createdAt(staff.getCreatedAt())
                 .updatedAt(staff.getUpdatedAt())
                 .createdBy(staff.getCreatedBy())

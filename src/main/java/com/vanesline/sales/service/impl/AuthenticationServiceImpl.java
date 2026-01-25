@@ -99,6 +99,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new DataConflictException("Email already exists: " + request.getEmail());
         }
 
+        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+            throw new DataConflictException("Phone number already exists: " + request.getPhoneNumber());
+        }
+
         // Get default ADMIN role
         Role adminRole = roleRepository.findByCode(DEFAULT_ROLE_CODE)
                 .orElseThrow(() -> new RuntimeException(
@@ -223,9 +227,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         tokenBlacklistService.blacklist(token);
     }
 
-    /**
-     * Build LoginResponse from User entity
-     */
     private LoginResponse buildLoginResponse(User user) {
         String token = jwtTokenService.generateToken(user);
 
@@ -250,9 +251,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
-    /**
-     * Generate unique username by appending numbers if necessary
-     */
     private String generateUniqueUsername(String baseUsername) {
         String username = baseUsername;
         int counter = 1;
