@@ -18,9 +18,5 @@ public class SearchStaffRequest extends BaseRequest {
 
     private String fullName;
 
-    private String email;
-
-    private String phoneNumber;
-
     private UUID shopId;
 }

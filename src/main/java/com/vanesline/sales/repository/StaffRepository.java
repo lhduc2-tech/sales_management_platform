@@ -3,6 +3,8 @@ package com.vanesline.sales.repository;
 import com.vanesline.sales.entity.Staff;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -11,9 +13,13 @@ import java.util.UUID;
 @Repository
 public interface StaffRepository extends JpaRepository<Staff, UUID>, JpaSpecificationExecutor<Staff> {
 
-    Optional<Staff> findByEmail(String email);
+    Optional<Staff> findByUserId(UUID userId);
 
-    boolean existsByEmail(String email);
+    boolean existsByUserId(UUID userId);
 
-    boolean existsByPhoneNumber(String phoneNumber);
+    @Query("SELECT s FROM Staff s LEFT JOIN FETCH s.user WHERE s.id = :id")
+    Optional<Staff> findByIdWithUser(@Param("id") UUID id);
+
+    @Query("SELECT s FROM Staff s LEFT JOIN FETCH s.user WHERE s.userId = :userId")
+    Optional<Staff> findByUserIdWithUser(@Param("userId") UUID userId);
 }

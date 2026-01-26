@@ -54,6 +54,9 @@ public class User extends BaseEntity {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "shop_id")
+    private UUID shopId;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private Set<UserRole> userRoles = new HashSet<>();

@@ -55,8 +55,6 @@ public class StaffController {
 
         StaffSearchCriteria criteria = StaffSearchCriteria.builder()
                 .fullName(request.getFullName())
-                .email(request.getEmail())
-                .phoneNumber(request.getPhoneNumber())
                 .shopId(request.getShopId())
                 .build();
 

@@ -21,7 +21,7 @@ public class StaffRequest {
     private String fullName;
 
     @NotBlank(message = "Phone number is required")
-    @Size(max = 10)
+    @Size(max = 15)
     private String phoneNumber;
 
     @Email(message = "Invalid email format")
@@ -30,10 +30,4 @@ public class StaffRequest {
     private String email;
 
     private UUID shopId;
-
-    @Size(max = 255)
-    private String createdBy;
-
-    @Size(max = 255)
-    private String updatedBy;
 }

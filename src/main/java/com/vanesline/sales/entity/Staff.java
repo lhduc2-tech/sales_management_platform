@@ -26,11 +26,12 @@ public class Staff extends BaseEntity {
     @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
+    @Column(name = "user_id")
+    private UUID userId;
 
-    @Column(name = "email")
-    private String email;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
 
     @Override
     protected void onCreate() {

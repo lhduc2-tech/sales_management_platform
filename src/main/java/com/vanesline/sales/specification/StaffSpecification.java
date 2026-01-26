@@ -21,16 +21,8 @@ public class StaffSpecification {
                         "%" + criteria.getFullName().toLowerCase() + "%"));
             }
 
-            if (StringUtils.hasText(criteria.getEmail())) {
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("email")),
-                        "%" + criteria.getEmail().toLowerCase() + "%"));
-            }
-
-            if (StringUtils.hasText(criteria.getPhoneNumber())) {
-                predicates.add(criteriaBuilder.like(
-                        root.get("phoneNumber"),
-                        "%" + criteria.getPhoneNumber() + "%"));
+            if (criteria.getShopId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("shopId"), criteria.getShopId()));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
