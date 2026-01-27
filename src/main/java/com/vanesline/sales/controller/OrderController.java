@@ -5,6 +5,7 @@ import com.vanesline.sales.dto.order.OrderRequest;
 import com.vanesline.sales.dto.order.OrderResponse;
 import com.vanesline.sales.dto.order.SearchOrderCriteria;
 import com.vanesline.sales.dto.order.SearchOrderRequest;
+import com.vanesline.sales.dto.product.ProductResponse;
 import com.vanesline.sales.service.contract.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +40,12 @@ public class OrderController {
             @Valid @RequestBody OrderRequest request)
     {
         OrderResponse response = orderService.update(id, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderResponse> getById(@PathVariable UUID id) {
+        OrderResponse response = orderService.getById(id);
         return ResponseEntity.ok(response);
     }
 
