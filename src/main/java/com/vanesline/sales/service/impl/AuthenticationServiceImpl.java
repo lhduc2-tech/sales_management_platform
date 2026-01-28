@@ -131,7 +131,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user = userRepository.save(user);
 
         // Create shop for user
-        Shop shop = createShopForUser(user, request.getShopName(), request.getAddress(), request.getAim());
+        Shop shop = createShopForUser(user, request.getShopName(), request.getAddress(), request.getAim(), request.getUsername());
 
         // Update user with shopId
         user.setShopId(shop.getId());
@@ -169,7 +169,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             user.setLastLoginAt(LocalDateTime.now());
 
             // Create shop if user doesn't have one
-            ensureUserHasShop(user, user.getUsername() + "'s Shop", null, null);
+            ensureUserHasShop(user, user.getUsername() + "'s Shop", null, null, null);
 
             userRepository.save(user);
 
@@ -191,7 +191,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             user.setLastLoginAt(LocalDateTime.now());
 
             // Create shop if user doesn't have one
-            ensureUserHasShop(user, user.getUsername() + "'s Shop", null, null);
+            ensureUserHasShop(user, user.getUsername() + "'s Shop", null, null, null);
 
             userRepository.save(user);
 
@@ -253,7 +253,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user = userRepository.save(user);
 
         // Create shop for user
-        Shop shop = createShopForUser(user, request.getShopName(), request.getAddress(), request.getAim());
+        Shop shop = createShopForUser(user, request.getShopName(), request.getAddress(), request.getAim(), user.getUsername());
 
         // Update user with shopId
         user.setShopId(shop.getId());
@@ -281,7 +281,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         tokenBlacklistService.blacklist(token);
     }
 
-    private Shop createShopForUser(User user, String shopName, String address, String aim) {
+    private Shop createShopForUser(User user, String shopName, String address, String aim, String createdBy) {
         Shop shop = Shop.builder()
                 .ownerUserId(user.getId())
                 .shopName(shopName)
@@ -289,12 +289,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .aim(aim)
                 .status(SHOP_STATUS_ACTIVE)
                 .build();
+        shop.setCreatedBy(createdBy);
         return shopRepository.save(shop);
     }
 
-    private void ensureUserHasShop(User user, String defaultShopName, String defaultAddress, String defaultAim) {
+    private void ensureUserHasShop(User user, String defaultShopName, String defaultAddress, String defaultAim, String defaultCreatedBy) {
         if (user.getShopId() == null && !shopRepository.existsByOwnerUserId(user.getId())) {
-            Shop shop = createShopForUser(user, defaultShopName, defaultAddress, defaultAim);
+            Shop shop = createShopForUser(user, defaultShopName, defaultAddress, defaultAim, defaultCreatedBy);
             user.setShopId(shop.getId());
         }
     }
