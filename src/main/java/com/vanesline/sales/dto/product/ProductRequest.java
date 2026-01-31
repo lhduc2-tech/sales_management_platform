@@ -35,4 +35,6 @@ public class ProductRequest {
 
     @Size(max = 255)
     private String updatedBy;
+
+    private UUID categoryId;
 }
