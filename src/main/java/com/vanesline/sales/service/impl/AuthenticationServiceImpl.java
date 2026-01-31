@@ -1,15 +1,18 @@
 package com.vanesline.sales.service.impl;
 
 import com.vanesline.sales.dto.auth.GoogleAuthRequest;
+import com.vanesline.sales.dto.auth.GoogleRegisterRequest;
 import com.vanesline.sales.dto.auth.LoginRequest;
 import com.vanesline.sales.dto.auth.LoginResponse;
 import com.vanesline.sales.dto.auth.RegisterRequest;
 import com.vanesline.sales.entity.Permission;
 import com.vanesline.sales.entity.Role;
+import com.vanesline.sales.entity.Shop;
 import com.vanesline.sales.entity.User;
 import com.vanesline.sales.entity.UserRole;
 import com.vanesline.sales.exception.DataConflictException;
 import com.vanesline.sales.repository.RoleRepository;
+import com.vanesline.sales.repository.ShopRepository;
 import com.vanesline.sales.repository.UserRepository;
 import com.vanesline.sales.sercurity.GoogleTokenVerifier;
 import com.vanesline.sales.sercurity.jwt.JwtTokenService;
@@ -36,10 +39,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private static final String DEFAULT_ROLE_CODE = "ADMIN";
     private static final String AUTH_PROVIDER_LOCAL = "LOCAL";
     private static final String AUTH_PROVIDER_GOOGLE = "GOOGLE";
+    private static final String SHOP_STATUS_ACTIVE = "ACTIVE";
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final ShopRepository shopRepository;
     private final JwtTokenService jwtTokenService;
     private final TokenBlacklistService tokenBlacklistService;
     private final PasswordEncoder passwordEncoder;
@@ -48,6 +53,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationServiceImpl(AuthenticationManager authenticationManager,
             UserRepository userRepository,
             RoleRepository roleRepository,
+            ShopRepository shopRepository,
             JwtTokenService jwtTokenService,
             TokenBlacklistService tokenBlacklistService,
             PasswordEncoder passwordEncoder,
@@ -55,6 +61,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.shopRepository = shopRepository;
         this.jwtTokenService = jwtTokenService;
         this.tokenBlacklistService = tokenBlacklistService;
         this.passwordEncoder = passwordEncoder;
@@ -108,7 +115,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .orElseThrow(() -> new RuntimeException(
                         "Default role ADMIN not found. Please ensure roles are properly seeded."));
 
-        // Create new user
+        // Create new user (without shopId initially)
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
@@ -122,6 +129,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         // Save user first to get the ID
         user = userRepository.save(user);
+
+        // Create shop for user
+        Shop shop = createShopForUser(user, request.getShopName(), request.getAddress(), request.getAim(), request.getUsername());
+
+        // Update user with shopId
+        user.setShopId(shop.getId());
 
         // Assign ADMIN role
         UserRole userRole = UserRole.builder()
@@ -154,6 +167,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             // Existing Google user - login
             User user = existingUserByGoogleId.get();
             user.setLastLoginAt(LocalDateTime.now());
+
+            // Create shop if user doesn't have one
+            ensureUserHasShop(user, user.getUsername() + "'s Shop", null, null, null);
+
             userRepository.save(user);
 
             User userWithRoles = userRepository.findByUsernameWithRolesAndPermissions(user.getUsername())
@@ -172,6 +189,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 user.setAuthProvider(AUTH_PROVIDER_LOCAL); // Keep as LOCAL if it was originally local
             }
             user.setLastLoginAt(LocalDateTime.now());
+
+            // Create shop if user doesn't have one
+            ensureUserHasShop(user, user.getUsername() + "'s Shop", null, null, null);
+
             userRepository.save(user);
 
             User userWithRoles = userRepository.findByUsernameWithRolesAndPermissions(user.getUsername())
@@ -180,7 +201,33 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return buildLoginResponse(userWithRoles);
         }
 
-        // New user - register with Google
+        throw new DataConflictException(
+                "New user detected. Please use the registration endpoint with shop information.");
+    }
+
+    @Override
+    @Transactional
+    public LoginResponse googleRegister(GoogleRegisterRequest request) {
+        // Verify Google token and extract user info
+        GoogleTokenVerifier.GoogleUserInfo googleUserInfo = googleTokenVerifier.verify(request.getIdToken());
+
+        // Check if user already exists by Google ID
+        if (userRepository.findByGoogleId(googleUserInfo.getGoogleId()).isPresent()) {
+            throw new DataConflictException("User with this Google account already exists. Please use login.");
+        }
+
+        // Check if email is already used
+        if (userRepository.existsByEmail(googleUserInfo.getEmail())) {
+            throw new DataConflictException("Email already exists: " + googleUserInfo.getEmail());
+        }
+
+        // Check phone number if provided
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank()
+                && userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+            throw new DataConflictException("Phone number already exists: " + request.getPhoneNumber());
+        }
+
+        // Get default ADMIN role
         Role adminRole = roleRepository.findByCode(DEFAULT_ROLE_CODE)
                 .orElseThrow(() -> new RuntimeException(
                         "Default role ADMIN not found. Please ensure roles are properly seeded."));
@@ -194,6 +241,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .username(username)
                 .email(googleUserInfo.getEmail())
                 .passwordHash("") // No password for Google-only users
+                .phoneNumber(request.getPhoneNumber())
                 .status("ACTIVE")
                 .isSystem(false)
                 .googleId(googleUserInfo.getGoogleId())
@@ -203,6 +251,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         // Save user first to get the ID
         user = userRepository.save(user);
+
+        // Create shop for user
+        Shop shop = createShopForUser(user, request.getShopName(), request.getAddress(), request.getAim(), user.getUsername());
+
+        // Update user with shopId
+        user.setShopId(shop.getId());
 
         // Assign ADMIN role
         UserRole userRole = UserRole.builder()
@@ -225,6 +279,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void logout(String token) {
         tokenBlacklistService.blacklist(token);
+    }
+
+    private Shop createShopForUser(User user, String shopName, String address, String aim, String createdBy) {
+        Shop shop = Shop.builder()
+                .ownerUserId(user.getId())
+                .shopName(shopName)
+                .address(address)
+                .aim(aim)
+                .status(SHOP_STATUS_ACTIVE)
+                .build();
+        shop.setCreatedBy(createdBy);
+        return shopRepository.save(shop);
+    }
+
+    private void ensureUserHasShop(User user, String defaultShopName, String defaultAddress, String defaultAim, String defaultCreatedBy) {
+        if (user.getShopId() == null && !shopRepository.existsByOwnerUserId(user.getId())) {
+            Shop shop = createShopForUser(user, defaultShopName, defaultAddress, defaultAim, defaultCreatedBy);
+            user.setShopId(shop.getId());
+        }
     }
 
     private LoginResponse buildLoginResponse(User user) {

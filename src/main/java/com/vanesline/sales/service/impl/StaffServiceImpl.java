@@ -17,6 +17,8 @@ import com.vanesline.sales.specification.StaffSpecification;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -47,6 +49,13 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public StaffResponse create(StaffRequest request) {
+
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        String userName = authentication.getName();
+
         // Check for duplicate email in User table
         if (StringUtils.hasText(request.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
             throw new DataConflictException("Email already exists: " + request.getEmail());
@@ -73,6 +82,9 @@ public class StaffServiceImpl implements StaffService {
                 .shopId(request.getShopId())
                 .build();
 
+        user.setCreatedBy(userName);
+        user.setUpdatedBy(userName);
+
         user = userRepository.save(user);
 
         // Create Staff linked to User
@@ -81,6 +93,9 @@ public class StaffServiceImpl implements StaffService {
                 .shopId(request.getShopId())
                 .userId(user.getId())
                 .build();
+
+        staff.setCreatedBy(userName);
+        staff.setUpdatedBy(userName);
 
         staff = staffRepository.save(staff);
 

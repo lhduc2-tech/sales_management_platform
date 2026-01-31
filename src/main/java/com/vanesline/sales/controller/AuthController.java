@@ -1,6 +1,7 @@
 package com.vanesline.sales.controller;
 
 import com.vanesline.sales.dto.auth.GoogleAuthRequest;
+import com.vanesline.sales.dto.auth.GoogleRegisterRequest;
 import com.vanesline.sales.dto.auth.LoginRequest;
 import com.vanesline.sales.dto.auth.LoginResponse;
 import com.vanesline.sales.dto.auth.RegisterRequest;
@@ -12,11 +13,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
 @RestController
+@RequestMapping("${application.path.base.public}/auth")
 public class AuthController {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
@@ -28,25 +31,31 @@ public class AuthController {
         this.authenticationService = authenticationService;
     }
 
-    @PostMapping("${application.path.base.public}/auth/login")
+    @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = authenticationService.login(request);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("${application.path.base.public}/auth/register")
+    @PostMapping("/register")
     public ResponseEntity<LoginResponse> register(@Valid @RequestBody RegisterRequest request) {
         LoginResponse response = authenticationService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("${application.path.base.public}/auth/google")
+    @PostMapping("/google")
     public ResponseEntity<LoginResponse> googleAuth(@Valid @RequestBody GoogleAuthRequest request) {
         LoginResponse response = authenticationService.googleAuth(request);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("${application.path.base.private}/auth/logout")
+    @PostMapping("/google/register")
+    public ResponseEntity<LoginResponse> googleRegister(@Valid @RequestBody GoogleRegisterRequest request) {
+        LoginResponse response = authenticationService.googleRegister(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
         String token = extractTokenFromRequest(request);
         if (token != null) {
