@@ -37,4 +37,10 @@ public class ProductResponse {
 
     @JsonProperty("updated_by")
     private String updatedBy;
+
+    @JsonProperty("category_id")
+    private UUID categoryId;
+
+    @JsonProperty("category_name")
+    private String categoryName;
 }

@@ -5,8 +5,10 @@ import com.vanesline.sales.dto.product.ProductRequest;
 import com.vanesline.sales.dto.product.ProductResponse;
 import com.vanesline.sales.dto.product.ProductSearchCriteria;
 import com.vanesline.sales.entity.Product;
+import com.vanesline.sales.entity.ProductCategory;
 import com.vanesline.sales.exception.DataConflictException;
 import com.vanesline.sales.exception.EntityNotFoundException;
+import com.vanesline.sales.repository.CategoryRepository;
 import com.vanesline.sales.repository.ProductRepository;
 import com.vanesline.sales.service.contract.ProductService;
 import com.vanesline.sales.specification.ProductSpecification;
@@ -23,9 +25,11 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -39,6 +43,7 @@ public class ProductServiceImpl implements ProductService {
                 .name(request.getName())
                 .price(request.getPrice())
                 .shopId(request.getShopId())
+                .categoryId(request.getCategoryId())
                 .build();
 
         product.setCreatedBy(request.getCreatedBy());
@@ -97,13 +102,23 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
     }
 
+
     private ProductResponse toResponse(Product product) {
+        String categoryName = null;
+        if (product.getCategoryId() != null) {
+            categoryName = categoryRepository.findById(product.getCategoryId())
+                    .map(ProductCategory::getCategoryName)
+                    .orElse(null);
+        }
+        
         return ProductResponse.builder()
                 .id(product.getId())
                 .shopId(product.getShopId())
                 .code(product.getCode())
                 .name(product.getName())
                 .price(product.getPrice())
+                .categoryId(product.getCategoryId())
+                .categoryName(categoryName)
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .createdBy(product.getCreatedBy())

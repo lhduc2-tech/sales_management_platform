@@ -27,6 +27,12 @@ public class ProductSpecification {
                         "%" + criteria.getName().toLowerCase() + "%"));
             }
 
+            if (StringUtils.hasText(criteria.getCategoryName())) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("category_name")),
+                        "%" + criteria.getName().toLowerCase() + "%"));
+            }
+
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
