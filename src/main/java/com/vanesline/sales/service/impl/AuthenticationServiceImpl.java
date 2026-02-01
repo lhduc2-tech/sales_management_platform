@@ -131,7 +131,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user = userRepository.save(user);
 
         // Create shop for user
-        Shop shop = createShopForUser(user, request.getShopName(), request.getAddress(), request.getAim(), request.getUsername());
+        Shop shop = createShopForUser(user, request.getShopName(), request.getAddress(), request.getAim(),
+                request.getUsername());
 
         // Update user with shopId
         user.setShopId(shop.getId());
@@ -221,12 +222,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new DataConflictException("Email already exists: " + googleUserInfo.getEmail());
         }
 
-        // Check phone number if provided
-        if (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank()
-                && userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
-            throw new DataConflictException("Phone number already exists: " + request.getPhoneNumber());
-        }
-
         // Get default ADMIN role
         Role adminRole = roleRepository.findByCode(DEFAULT_ROLE_CODE)
                 .orElseThrow(() -> new RuntimeException(
@@ -236,12 +231,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String baseUsername = googleUserInfo.getEmail().split("@")[0];
         String username = generateUniqueUsername(baseUsername);
 
+        // Generate shop name from Google user's name
+        String shopName = googleUserInfo.getName() != null && !googleUserInfo.getName().isBlank()
+                ? googleUserInfo.getName() + "'s Shop"
+                : username + "'s Shop";
+
         // Create new user with Google authentication
         User user = User.builder()
                 .username(username)
                 .email(googleUserInfo.getEmail())
                 .passwordHash("") // No password for Google-only users
-                .phoneNumber(request.getPhoneNumber())
                 .status("ACTIVE")
                 .isSystem(false)
                 .googleId(googleUserInfo.getGoogleId())
@@ -252,8 +251,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // Save user first to get the ID
         user = userRepository.save(user);
 
-        // Create shop for user
-        Shop shop = createShopForUser(user, request.getShopName(), request.getAddress(), request.getAim(), user.getUsername());
+        // Create shop for user with default values
+        Shop shop = createShopForUser(user, shopName, null, null, user.getUsername());
 
         // Update user with shopId
         user.setShopId(shop.getId());
@@ -293,7 +292,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return shopRepository.save(shop);
     }
 
-    private void ensureUserHasShop(User user, String defaultShopName, String defaultAddress, String defaultAim, String defaultCreatedBy) {
+    private void ensureUserHasShop(User user, String defaultShopName, String defaultAddress, String defaultAim,
+            String defaultCreatedBy) {
         if (user.getShopId() == null && !shopRepository.existsByOwnerUserId(user.getId())) {
             Shop shop = createShopForUser(user, defaultShopName, defaultAddress, defaultAim, defaultCreatedBy);
             user.setShopId(shop.getId());
