@@ -1,7 +1,6 @@
 package com.vanesline.sales.service.impl;
 
 import com.vanesline.sales.dto.auth.GoogleAuthRequest;
-import com.vanesline.sales.dto.auth.GoogleRegisterRequest;
 import com.vanesline.sales.dto.auth.LoginRequest;
 import com.vanesline.sales.dto.auth.LoginResponse;
 import com.vanesline.sales.dto.auth.RegisterRequest;
@@ -202,26 +201,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return buildLoginResponse(userWithRoles);
         }
 
-        throw new DataConflictException(
-                "New user detected. Please use the registration endpoint with shop information.");
+        // New user detected - automatically register them
+        return registerNewGoogleUser(googleUserInfo);
     }
 
-    @Override
-    @Transactional
-    public LoginResponse googleRegister(GoogleRegisterRequest request) {
-        // Verify Google token and extract user info
-        GoogleTokenVerifier.GoogleUserInfo googleUserInfo = googleTokenVerifier.verify(request.getIdToken());
-
-        // Check if user already exists by Google ID
-        if (userRepository.findByGoogleId(googleUserInfo.getGoogleId()).isPresent()) {
-            throw new DataConflictException("User with this Google account already exists. Please use login.");
-        }
-
-        // Check if email is already used
-        if (userRepository.existsByEmail(googleUserInfo.getEmail())) {
-            throw new DataConflictException("Email already exists: " + googleUserInfo.getEmail());
-        }
-
+    /**
+     * Register a new user from Google authentication.
+     * This is called when a new Google user is detected during googleAuth.
+     */
+    private LoginResponse registerNewGoogleUser(GoogleTokenVerifier.GoogleUserInfo googleUserInfo) {
         // Get default ADMIN role
         Role adminRole = roleRepository.findByCode(DEFAULT_ROLE_CODE)
                 .orElseThrow(() -> new RuntimeException(

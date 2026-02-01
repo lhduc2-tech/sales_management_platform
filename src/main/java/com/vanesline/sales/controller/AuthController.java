@@ -1,7 +1,6 @@
 package com.vanesline.sales.controller;
 
 import com.vanesline.sales.dto.auth.GoogleAuthRequest;
-import com.vanesline.sales.dto.auth.GoogleRegisterRequest;
 import com.vanesline.sales.dto.auth.LoginRequest;
 import com.vanesline.sales.dto.auth.LoginResponse;
 import com.vanesline.sales.dto.auth.RegisterRequest;
@@ -47,12 +46,6 @@ public class AuthController {
     public ResponseEntity<LoginResponse> googleAuth(@Valid @RequestBody GoogleAuthRequest request) {
         LoginResponse response = authenticationService.googleAuth(request);
         return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/google/register")
-    public ResponseEntity<LoginResponse> googleRegister(@Valid @RequestBody GoogleRegisterRequest request) {
-        LoginResponse response = authenticationService.googleRegister(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/logout")
