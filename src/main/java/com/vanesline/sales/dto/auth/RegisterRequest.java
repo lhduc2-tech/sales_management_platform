@@ -38,6 +38,6 @@ public class RegisterRequest {
     @Size(max = 500, message = "Address must be at most 500 characters")
     private String address;
 
-    @Size(max = 255, message = "Aim must be at most 255 characters")
-    private String aim;
+    @Size(max = 30, message = "Shop type must be at most 30 characters")
+    private String shopType;
 }

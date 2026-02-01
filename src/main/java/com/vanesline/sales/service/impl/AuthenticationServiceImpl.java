@@ -130,7 +130,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user = userRepository.save(user);
 
         // Create shop for user
-        Shop shop = createShopForUser(user, request.getShopName(), request.getAddress(), request.getAim(),
+        Shop shop = createShopForUser(user, request.getShopName(), request.getAddress(), request.getShopType(),
                 request.getUsername());
 
         // Update user with shopId
@@ -265,22 +265,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         tokenBlacklistService.blacklist(token);
     }
 
-    private Shop createShopForUser(User user, String shopName, String address, String aim, String createdBy) {
+    private Shop createShopForUser(User user, String shopName, String address, String shopType, String createdBy) {
         Shop shop = Shop.builder()
                 .ownerUserId(user.getId())
                 .shopName(shopName)
                 .address(address)
-                .aim(aim)
+                .shopType(shopType)
                 .status(SHOP_STATUS_ACTIVE)
                 .build();
         shop.setCreatedBy(createdBy);
         return shopRepository.save(shop);
     }
 
-    private void ensureUserHasShop(User user, String defaultShopName, String defaultAddress, String defaultAim,
+    private void ensureUserHasShop(User user, String defaultShopName, String defaultAddress, String defaultShopType,
             String defaultCreatedBy) {
         if (user.getShopId() == null && !shopRepository.existsByOwnerUserId(user.getId())) {
-            Shop shop = createShopForUser(user, defaultShopName, defaultAddress, defaultAim, defaultCreatedBy);
+            Shop shop = createShopForUser(user, defaultShopName, defaultAddress, defaultShopType, defaultCreatedBy);
             user.setShopId(shop.getId());
         }
     }

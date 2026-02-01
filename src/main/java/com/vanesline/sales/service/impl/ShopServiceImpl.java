@@ -17,8 +17,9 @@ public class ShopServiceImpl implements ShopService {
 
     private final ShopRepository shopRepository;
 
-    public ShopServiceImpl(ShopRepository shopRepository) {this.shopRepository = shopRepository;}
-
+    public ShopServiceImpl(ShopRepository shopRepository) {
+        this.shopRepository = shopRepository;
+    }
 
     @Override
     public ShopResponse create(ShopRequest request) {
@@ -56,7 +57,9 @@ public class ShopServiceImpl implements ShopService {
                 .shopName(shop.getShopName())
                 .status(shop.getStatus())
                 .address(shop.getAddress())
-                .aim(shop.getAim())
+                .shopType(shop.getShopType())
+                .shopCode(shop.getShopCode())
+                .openedAt(shop.getOpenedAt())
                 .createdAt(shop.getCreatedAt())
                 .createdBy(shop.getCreatedBy())
                 .updatedAt(shop.getUpdatedAt())

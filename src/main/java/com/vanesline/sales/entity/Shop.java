@@ -36,8 +36,14 @@ public class Shop extends BaseEntity {
     @Column(name = "address")
     private String address;
 
-    @Column(name = "aim")
-    private String aim;
+    @Column(name = "shop_type", length = 30)
+    private String shopType;
+
+    @Column(name = "shop_code", length = 50, unique = true)
+    private String shopCode;
+
+    @Column(name = "opened_at")
+    private OffsetDateTime openedAt;
 
     @Override
     protected void onCreate() {

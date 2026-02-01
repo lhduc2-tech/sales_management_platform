@@ -27,7 +27,14 @@ public class ShopResponse {
 
     private String address;
 
-    private String aim;
+    @JsonProperty("shop_type")
+    private String shopType;
+
+    @JsonProperty("shop_code")
+    private String shopCode;
+
+    @JsonProperty("opened_at")
+    private OffsetDateTime openedAt;
 
     @JsonProperty("created_at")
     private OffsetDateTime createdAt;
