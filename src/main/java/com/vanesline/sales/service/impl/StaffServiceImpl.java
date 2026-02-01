@@ -75,6 +75,7 @@ public class StaffServiceImpl implements StaffService {
                 .username(username)
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
+                .fullName(request.getFullName())
                 .passwordHash("") // Empty password, will be set during activation
                 .status("DEACTIVE")
                 .isSystem(false)
@@ -89,7 +90,6 @@ public class StaffServiceImpl implements StaffService {
 
         // Create Staff linked to User
         Staff staff = Staff.builder()
-                .fullName(request.getFullName())
                 .shopId(request.getShopId())
                 .userId(user.getId())
                 .build();
@@ -139,10 +139,10 @@ public class StaffServiceImpl implements StaffService {
         }
 
         // Update staff fields
-        staff.setFullName(request.getFullName());
         staff.setShopId(request.getShopId());
 
-        // Update user shop
+        // Update user fields
+        user.setFullName(request.getFullName());
         user.setShopId(request.getShopId());
 
         userRepository.save(user);
@@ -210,7 +210,6 @@ public class StaffServiceImpl implements StaffService {
     private StaffResponse toResponse(Staff staff, User user) {
         StaffResponse.StaffResponseBuilder builder = StaffResponse.builder()
                 .id(staff.getId())
-                .fullName(staff.getFullName())
                 .shopId(staff.getShopId())
                 .userId(staff.getUserId())
                 .createdAt(staff.getCreatedAt())
@@ -219,7 +218,8 @@ public class StaffServiceImpl implements StaffService {
                 .updatedBy(staff.getUpdatedBy());
 
         if (user != null) {
-            builder.username(user.getUsername())
+            builder.fullName(user.getFullName())
+                    .username(user.getUsername())
                     .email(user.getEmail())
                     .phoneNumber(user.getPhoneNumber())
                     .userStatus(user.getStatus());

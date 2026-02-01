@@ -228,6 +228,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User user = User.builder()
                 .username(username)
                 .email(googleUserInfo.getEmail())
+                .fullName(googleUserInfo.getName())
                 .passwordHash("") // No password for Google-only users
                 .status("ACTIVE")
                 .isSystem(false)
