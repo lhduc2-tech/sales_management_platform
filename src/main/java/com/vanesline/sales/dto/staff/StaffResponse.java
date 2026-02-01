@@ -26,6 +26,10 @@ public class StaffResponse {
     @JsonProperty("user_id")
     private UUID userId;
 
+    private String status;
+
+    private String position;
+
     // User info
     private String username;
 

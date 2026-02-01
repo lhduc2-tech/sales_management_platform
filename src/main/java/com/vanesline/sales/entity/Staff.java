@@ -26,6 +26,13 @@ public class Staff extends BaseEntity {
     @Column(name = "user_id")
     private UUID userId;
 
+    @Column(name = "status", length = 30, nullable = false)
+    @Builder.Default
+    private String status = "ACTIVE";
+
+    @Column(name = "position", length = 50)
+    private String position;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;

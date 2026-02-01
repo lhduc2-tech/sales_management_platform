@@ -30,4 +30,7 @@ public class StaffRequest {
     private String email;
 
     private UUID shopId;
+
+    @Size(max = 50, message = "Position must be at most 50 characters")
+    private String position;
 }
