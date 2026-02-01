@@ -1,6 +1,7 @@
 package com.vanesline.sales.controller;
 
 import com.vanesline.sales.dto.User.UserResponse;
+import com.vanesline.sales.entity.Role;
 import com.vanesline.sales.entity.User;
 import com.vanesline.sales.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +24,6 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Get all users - requires user:read permission
-     */
     @GetMapping
     @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
@@ -35,9 +33,6 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    /**
-     * Get current logged in user profile
-     */
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -48,9 +43,6 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Get user by ID - requires user:read permission
-     */
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id) {
@@ -59,9 +51,6 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Delete user - requires user:delete permission
-     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('user:delete')")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
@@ -74,15 +63,17 @@ public class UserController {
 
     private UserResponse toUserResponse(User user) {
         List<String> roles = user.getRoles().stream()
-                .map(role -> role.getCode())
+                .map(Role::getCode)
                 .collect(Collectors.toList());
 
         return UserResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
                 .status(user.getStatus())
                 .isSystem(user.getIsSystem())
+                .shopId(user.getShopId())
                 .roles(roles)
                 .createdAt(user.getCreatedAt())
                 .lastLoginAt(user.getLastLoginAt())

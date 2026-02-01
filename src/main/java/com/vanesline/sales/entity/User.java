@@ -54,22 +54,22 @@ public class User extends BaseEntity {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "shop_id")
+    private UUID shopId;
+
+    @Column(name = "full_name")
+    private String fullName;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private Set<UserRole> userRoles = new HashSet<>();
 
-    /**
-     * Helper method to get roles
-     */
     public Set<Role> getRoles() {
         return userRoles.stream()
                 .map(UserRole::getRole)
                 .collect(Collectors.toSet());
     }
 
-    /**
-     * Helper method to add a role
-     */
     public void addRole(Role role) {
         UserRole userRole = UserRole.builder()
                 .id(new UserRole.UserRoleId(this.id, role.getId()))

@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -13,7 +15,5 @@ public class StaffSearchCriteria {
 
     private String fullName;
 
-    private String phoneNumber;
-
-    private String email;
+    private UUID shopId;
 }

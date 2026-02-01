@@ -6,6 +6,7 @@ import com.vanesline.sales.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ public class JwtTokenService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    @Getter
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
@@ -30,6 +32,10 @@ public class JwtTokenService {
     }
 
     public String generateToken(User user) {
+        return generateToken(user, null);
+    }
+
+    public String generateToken(User user, String position) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
@@ -47,6 +53,8 @@ public class JwtTokenService {
         return Jwts.builder()
                 .subject(user.getUsername())
                 .claim("userId", user.getId().toString())
+                .claim("shopId", user.getShopId() != null ? user.getShopId().toString() : null)
+                .claim("position", position)
                 .claim("roles", roleNames)
                 .claim("permissions", permissions)
                 .issuedAt(now)
@@ -61,6 +69,14 @@ public class JwtTokenService {
 
     public String extractUserId(String token) {
         return extractClaims(token).get("userId", String.class);
+    }
+
+    public String extractShopId(String token) {
+        return extractClaims(token).get("shopId", String.class);
+    }
+
+    public String extractPosition(String token) {
+        return extractClaims(token).get("position", String.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -103,7 +119,4 @@ public class JwtTokenService {
                 .getPayload();
     }
 
-    public long getJwtExpiration() {
-        return jwtExpiration;
-    }
 }

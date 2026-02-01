@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -19,7 +21,7 @@ public class StaffRequest {
     private String fullName;
 
     @NotBlank(message = "Phone number is required")
-    @Size(max = 10)
+    @Size(max = 15)
     private String phoneNumber;
 
     @Email(message = "Invalid email format")
@@ -27,9 +29,8 @@ public class StaffRequest {
     @Size(max = 255)
     private String email;
 
-    @Size(max = 255)
-    private String createdBy;
+    private UUID shopId;
 
-    @Size(max = 255)
-    private String updatedBy;
+    @Size(max = 50, message = "Position must be at most 50 characters")
+    private String position;
 }

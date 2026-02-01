@@ -23,10 +23,16 @@ public class UserResponse {
 
     private String email;
 
+    @JsonProperty("phone_number")
+    private String phoneNumber;
+
     private String status;
 
     @JsonProperty("is_system")
     private Boolean isSystem;
+
+    @JsonProperty("shop_id")
+    private UUID shopId;
 
     private List<String> roles;
 

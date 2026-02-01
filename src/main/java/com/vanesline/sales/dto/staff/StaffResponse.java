@@ -20,10 +20,26 @@ public class StaffResponse {
     @JsonProperty("full_name")
     private String fullName;
 
+    @JsonProperty("shop_id")
+    private UUID shopId;
+
+    @JsonProperty("user_id")
+    private UUID userId;
+
+    private String status;
+
+    private String position;
+
+    // User info
+    private String username;
+
+    private String email;
+
     @JsonProperty("phone_number")
     private String phoneNumber;
 
-    private String email;
+    @JsonProperty("user_status")
+    private String userStatus;
 
     @JsonProperty("created_at")
     private OffsetDateTime createdAt;

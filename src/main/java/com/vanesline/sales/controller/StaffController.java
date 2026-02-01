@@ -26,18 +26,12 @@ public class StaffController {
         this.staffService = staffService;
     }
 
-    /**
-     * Create new staff
-     */
     @PostMapping
     public ResponseEntity<StaffResponse> create(@Valid @RequestBody StaffRequest request) {
         StaffResponse response = staffService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * Update existing staff
-     */
     @PutMapping("/{id}")
     public ResponseEntity<StaffResponse> update(
             @PathVariable UUID id,
@@ -46,9 +40,6 @@ public class StaffController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Get staff by ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<StaffResponse> getById(@PathVariable UUID id) {
         StaffResponse response = staffService.getById(id);
@@ -64,8 +55,7 @@ public class StaffController {
 
         StaffSearchCriteria criteria = StaffSearchCriteria.builder()
                 .fullName(request.getFullName())
-                .email(request.getEmail())
-                .phoneNumber(request.getPhoneNumber())
+                .shopId(request.getShopId())
                 .build();
 
         Sort sort = request.getSortDir().equalsIgnoreCase("asc")
@@ -77,9 +67,6 @@ public class StaffController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Delete staff by ID
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         staffService.delete(id);

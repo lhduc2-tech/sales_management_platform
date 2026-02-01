@@ -43,6 +43,27 @@ spring:
     out-of-order: false
     clean-disabled: true
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: smtp.gmail.com
+            protocols: TLSv1.2
+
+app:
+  activation:
+    base-url: ${APP_BASE_URL}
+    token-expiry-hours: ${ACTIVATION_TOKEN_EXPIRY:24}
+
 s3:
   endpoint: ${S3_ENDPOINT}
   region: ${S3_REGION}

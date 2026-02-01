@@ -25,13 +25,6 @@ public class GoogleTokenVerifier {
                 .build();
     }
 
-    /**
-     * Verify Google ID token and extract user info
-     * 
-     * @param idTokenString the Google ID token
-     * @return GoogleUserInfo with user details
-     * @throws IllegalArgumentException if token is invalid
-     */
     public GoogleUserInfo verify(String idTokenString) {
         try {
             GoogleIdToken idToken = verifier.verify(idTokenString);

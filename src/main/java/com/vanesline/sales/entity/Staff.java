@@ -20,14 +20,22 @@ public class Staff extends BaseEntity {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "full_name")
-    private String fullName;
+    @Column(name = "shop_id")
+    private UUID shopId;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
+    @Column(name = "user_id")
+    private UUID userId;
 
-    @Column(name = "email")
-    private String email;
+    @Column(name = "status", length = 30, nullable = false)
+    @Builder.Default
+    private String status = "ACTIVE";
+
+    @Column(name = "position", length = 50)
+    private String position;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
 
     @Override
     protected void onCreate() {
