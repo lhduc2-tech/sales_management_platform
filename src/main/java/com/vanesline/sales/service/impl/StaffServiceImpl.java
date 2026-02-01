@@ -92,6 +92,8 @@ public class StaffServiceImpl implements StaffService {
         Staff staff = Staff.builder()
                 .shopId(request.getShopId())
                 .userId(user.getId())
+                .status("ACTIVE")
+                .position(request.getPosition())
                 .build();
 
         staff.setCreatedBy(userName);
@@ -140,6 +142,9 @@ public class StaffServiceImpl implements StaffService {
 
         // Update staff fields
         staff.setShopId(request.getShopId());
+        if (request.getPosition() != null) {
+            staff.setPosition(request.getPosition());
+        }
 
         // Update user fields
         user.setFullName(request.getFullName());
@@ -212,6 +217,8 @@ public class StaffServiceImpl implements StaffService {
                 .id(staff.getId())
                 .shopId(staff.getShopId())
                 .userId(staff.getUserId())
+                .status(staff.getStatus())
+                .position(staff.getPosition())
                 .createdAt(staff.getCreatedAt())
                 .updatedAt(staff.getUpdatedAt())
                 .createdBy(staff.getCreatedBy())

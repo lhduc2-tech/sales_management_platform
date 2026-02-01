@@ -7,11 +7,13 @@ import com.vanesline.sales.dto.auth.RegisterRequest;
 import com.vanesline.sales.entity.Permission;
 import com.vanesline.sales.entity.Role;
 import com.vanesline.sales.entity.Shop;
+import com.vanesline.sales.entity.Staff;
 import com.vanesline.sales.entity.User;
 import com.vanesline.sales.entity.UserRole;
 import com.vanesline.sales.exception.DataConflictException;
 import com.vanesline.sales.repository.RoleRepository;
 import com.vanesline.sales.repository.ShopRepository;
+import com.vanesline.sales.repository.StaffRepository;
 import com.vanesline.sales.repository.UserRepository;
 import com.vanesline.sales.sercurity.GoogleTokenVerifier;
 import com.vanesline.sales.sercurity.jwt.JwtTokenService;
@@ -44,6 +46,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ShopRepository shopRepository;
+    private final StaffRepository staffRepository;
     private final JwtTokenService jwtTokenService;
     private final TokenBlacklistService tokenBlacklistService;
     private final PasswordEncoder passwordEncoder;
@@ -53,6 +56,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             UserRepository userRepository,
             RoleRepository roleRepository,
             ShopRepository shopRepository,
+            StaffRepository staffRepository,
             JwtTokenService jwtTokenService,
             TokenBlacklistService tokenBlacklistService,
             PasswordEncoder passwordEncoder,
@@ -61,6 +65,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.shopRepository = shopRepository;
+        this.staffRepository = staffRepository;
         this.jwtTokenService = jwtTokenService;
         this.tokenBlacklistService = tokenBlacklistService;
         this.passwordEncoder = passwordEncoder;
@@ -286,7 +291,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private LoginResponse buildLoginResponse(User user) {
-        String token = jwtTokenService.generateToken(user);
+        // Get position from active staff
+        String position = staffRepository.findByUserIdAndStatus(user.getId(), "ACTIVE")
+                .map(Staff::getPosition)
+                .orElse(null);
+
+        String token = jwtTokenService.generateToken(user, position);
 
         List<String> roles = user.getRoles().stream()
                 .map(Role::getCode)

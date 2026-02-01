@@ -17,9 +17,16 @@ public interface StaffRepository extends JpaRepository<Staff, UUID>, JpaSpecific
 
     boolean existsByUserId(UUID userId);
 
+    boolean existsByUserIdAndStatus(UUID userId, String status);
+
+    Optional<Staff> findByUserIdAndStatus(UUID userId, String status);
+
     @Query("SELECT s FROM Staff s LEFT JOIN FETCH s.user WHERE s.id = :id")
     Optional<Staff> findByIdWithUser(@Param("id") UUID id);
 
     @Query("SELECT s FROM Staff s LEFT JOIN FETCH s.user WHERE s.userId = :userId")
     Optional<Staff> findByUserIdWithUser(@Param("userId") UUID userId);
+
+    @Query("SELECT s FROM Staff s LEFT JOIN FETCH s.user WHERE s.userId = :userId AND s.status = :status")
+    Optional<Staff> findByUserIdAndStatusWithUser(@Param("userId") UUID userId, @Param("status") String status);
 }
