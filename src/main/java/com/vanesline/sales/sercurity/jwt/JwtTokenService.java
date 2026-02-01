@@ -49,6 +49,7 @@ public class JwtTokenService {
         return Jwts.builder()
                 .subject(user.getUsername())
                 .claim("userId", user.getId().toString())
+                .claim("shopId", user.getShopId() != null ? user.getShopId().toString() : null)
                 .claim("roles", roleNames)
                 .claim("permissions", permissions)
                 .issuedAt(now)
@@ -63,6 +64,10 @@ public class JwtTokenService {
 
     public String extractUserId(String token) {
         return extractClaims(token).get("userId", String.class);
+    }
+
+    public String extractShopId(String token) {
+        return extractClaims(token).get("shopId", String.class);
     }
 
     @SuppressWarnings("unchecked")

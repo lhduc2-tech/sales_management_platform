@@ -205,10 +205,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return registerNewGoogleUser(googleUserInfo);
     }
 
-    /**
-     * Register a new user from Google authentication.
-     * This is called when a new Google user is detected during googleAuth.
-     */
     private LoginResponse registerNewGoogleUser(GoogleTokenVerifier.GoogleUserInfo googleUserInfo) {
         // Get default ADMIN role
         Role adminRole = roleRepository.findByCode(DEFAULT_ROLE_CODE)
