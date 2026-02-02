@@ -11,6 +11,7 @@ import com.vanesline.sales.entity.UserRole;
 import com.vanesline.sales.exception.EntityNotFoundException;
 import com.vanesline.sales.repository.ActivationTokenRepository;
 import com.vanesline.sales.repository.RoleRepository;
+import com.vanesline.sales.repository.StaffRepository;
 import com.vanesline.sales.repository.UserRepository;
 import com.vanesline.sales.sercurity.jwt.JwtTokenService;
 import com.vanesline.sales.service.contract.ActivationService;
@@ -32,6 +33,7 @@ public class ActivationServiceImpl implements ActivationService {
         private final ActivationTokenRepository activationTokenRepository;
         private final UserRepository userRepository;
         private final RoleRepository roleRepository;
+        private final StaffRepository staffRepository;
         private final PasswordEncoder passwordEncoder;
         private final JwtTokenService jwtTokenService;
 
@@ -41,11 +43,13 @@ public class ActivationServiceImpl implements ActivationService {
         public ActivationServiceImpl(ActivationTokenRepository activationTokenRepository,
                         UserRepository userRepository,
                         RoleRepository roleRepository,
+                        StaffRepository staffRepository,
                         PasswordEncoder passwordEncoder,
                         JwtTokenService jwtTokenService) {
                 this.activationTokenRepository = activationTokenRepository;
                 this.userRepository = userRepository;
                 this.roleRepository = roleRepository;
+                this.staffRepository = staffRepository;
                 this.passwordEncoder = passwordEncoder;
                 this.jwtTokenService = jwtTokenService;
         }
@@ -124,9 +128,15 @@ public class ActivationServiceImpl implements ActivationService {
                 User user = userRepository.findById(activationToken.getUserId())
                                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-                // Update password and activate
+                // Update password and activate user
                 user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
                 user.setStatus("ACTIVE");
+
+                // Activate staff if exists
+                staffRepository.findByUserId(user.getId()).ifPresent(staff -> {
+                        staff.setStatus("ACTIVE");
+                        staffRepository.save(staff);
+                });
 
                 // Assign SALES role
                 Role salesRole = roleRepository.findByCode(SALES_ROLE_CODE)
