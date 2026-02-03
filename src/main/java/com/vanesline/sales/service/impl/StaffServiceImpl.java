@@ -92,7 +92,7 @@ public class StaffServiceImpl implements StaffService {
         Staff staff = Staff.builder()
                 .shopId(request.getShopId())
                 .userId(user.getId())
-                .status("ACTIVE")
+                .status("INACTIVE")
                 .position(request.getPosition())
                 .build();
 

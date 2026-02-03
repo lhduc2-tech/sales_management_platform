@@ -2,6 +2,7 @@ package com.vanesline.sales.specification;
 
 import com.vanesline.sales.dto.staff.StaffSearchCriteria;
 import com.vanesline.sales.entity.Staff;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
@@ -16,8 +17,10 @@ public class StaffSpecification {
             List<Predicate> predicates = new ArrayList<>();
 
             if (StringUtils.hasText(criteria.getFullName())) {
+                // Join với User entity để tìm kiếm theo fullName
+                var userJoin = root.join("user", JoinType.LEFT);
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("fullName")),
+                        criteriaBuilder.lower(userJoin.get("fullName")),
                         "%" + criteria.getFullName().toLowerCase() + "%"));
             }
 
