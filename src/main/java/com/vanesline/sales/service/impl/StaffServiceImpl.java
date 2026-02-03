@@ -17,6 +17,8 @@ import com.vanesline.sales.specification.StaffSpecification;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -47,6 +49,13 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public StaffResponse create(StaffRequest request) {
+
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        String userName = authentication.getName();
+
         // Check for duplicate email in User table
         if (StringUtils.hasText(request.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
             throw new DataConflictException("Email already exists: " + request.getEmail());
@@ -66,6 +75,7 @@ public class StaffServiceImpl implements StaffService {
                 .username(username)
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
+                .fullName(request.getFullName())
                 .passwordHash("") // Empty password, will be set during activation
                 .status("DEACTIVE")
                 .isSystem(false)
@@ -73,14 +83,21 @@ public class StaffServiceImpl implements StaffService {
                 .shopId(request.getShopId())
                 .build();
 
+        user.setCreatedBy(userName);
+        user.setUpdatedBy(userName);
+
         user = userRepository.save(user);
 
         // Create Staff linked to User
         Staff staff = Staff.builder()
-                .fullName(request.getFullName())
                 .shopId(request.getShopId())
                 .userId(user.getId())
+                .status("INACTIVE")
+                .position(request.getPosition())
                 .build();
+
+        staff.setCreatedBy(userName);
+        staff.setUpdatedBy(userName);
 
         staff = staffRepository.save(staff);
 
@@ -124,10 +141,13 @@ public class StaffServiceImpl implements StaffService {
         }
 
         // Update staff fields
-        staff.setFullName(request.getFullName());
         staff.setShopId(request.getShopId());
+        if (request.getPosition() != null) {
+            staff.setPosition(request.getPosition());
+        }
 
-        // Update user shop
+        // Update user fields
+        user.setFullName(request.getFullName());
         user.setShopId(request.getShopId());
 
         userRepository.save(user);
@@ -195,16 +215,18 @@ public class StaffServiceImpl implements StaffService {
     private StaffResponse toResponse(Staff staff, User user) {
         StaffResponse.StaffResponseBuilder builder = StaffResponse.builder()
                 .id(staff.getId())
-                .fullName(staff.getFullName())
                 .shopId(staff.getShopId())
                 .userId(staff.getUserId())
+                .status(staff.getStatus())
+                .position(staff.getPosition())
                 .createdAt(staff.getCreatedAt())
                 .updatedAt(staff.getUpdatedAt())
                 .createdBy(staff.getCreatedBy())
                 .updatedBy(staff.getUpdatedBy());
 
         if (user != null) {
-            builder.username(user.getUsername())
+            builder.fullName(user.getFullName())
+                    .username(user.getUsername())
                     .email(user.getEmail())
                     .phoneNumber(user.getPhoneNumber())
                     .userStatus(user.getStatus());

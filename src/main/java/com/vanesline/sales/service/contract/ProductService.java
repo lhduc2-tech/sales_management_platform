@@ -19,4 +19,6 @@ public interface ProductService {
     PageResponse<ProductResponse> search(ProductSearchCriteria criteria, Pageable pageable);
 
     void delete(UUID id);
+
+    //void getCategoryName(UUID categoryId);
 }

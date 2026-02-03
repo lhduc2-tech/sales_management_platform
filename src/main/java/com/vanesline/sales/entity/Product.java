@@ -33,6 +33,9 @@ public class Product extends BaseEntity {
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
+    @Column (name = "category_id")
+    private UUID categoryId;
+
     @Override
     protected void onCreate() {
         if (id == null) {

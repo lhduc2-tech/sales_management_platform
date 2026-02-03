@@ -6,10 +6,14 @@ import com.vanesline.sales.dto.auth.LoginResponse;
 import com.vanesline.sales.dto.auth.RegisterRequest;
 import com.vanesline.sales.entity.Permission;
 import com.vanesline.sales.entity.Role;
+import com.vanesline.sales.entity.Shop;
+import com.vanesline.sales.entity.Staff;
 import com.vanesline.sales.entity.User;
 import com.vanesline.sales.entity.UserRole;
 import com.vanesline.sales.exception.DataConflictException;
 import com.vanesline.sales.repository.RoleRepository;
+import com.vanesline.sales.repository.ShopRepository;
+import com.vanesline.sales.repository.StaffRepository;
 import com.vanesline.sales.repository.UserRepository;
 import com.vanesline.sales.sercurity.GoogleTokenVerifier;
 import com.vanesline.sales.sercurity.jwt.JwtTokenService;
@@ -36,10 +40,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private static final String DEFAULT_ROLE_CODE = "ADMIN";
     private static final String AUTH_PROVIDER_LOCAL = "LOCAL";
     private static final String AUTH_PROVIDER_GOOGLE = "GOOGLE";
+    private static final String SHOP_STATUS_ACTIVE = "ACTIVE";
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final ShopRepository shopRepository;
+    private final StaffRepository staffRepository;
     private final JwtTokenService jwtTokenService;
     private final TokenBlacklistService tokenBlacklistService;
     private final PasswordEncoder passwordEncoder;
@@ -48,6 +55,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationServiceImpl(AuthenticationManager authenticationManager,
             UserRepository userRepository,
             RoleRepository roleRepository,
+            ShopRepository shopRepository,
+            StaffRepository staffRepository,
             JwtTokenService jwtTokenService,
             TokenBlacklistService tokenBlacklistService,
             PasswordEncoder passwordEncoder,
@@ -55,6 +64,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.shopRepository = shopRepository;
+        this.staffRepository = staffRepository;
         this.jwtTokenService = jwtTokenService;
         this.tokenBlacklistService = tokenBlacklistService;
         this.passwordEncoder = passwordEncoder;
@@ -108,7 +119,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .orElseThrow(() -> new RuntimeException(
                         "Default role ADMIN not found. Please ensure roles are properly seeded."));
 
-        // Create new user
+        // Create new user (without shopId initially)
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
@@ -122,6 +133,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         // Save user first to get the ID
         user = userRepository.save(user);
+
+        // Create shop for user
+        Shop shop = createShopForUser(user, request.getShopName(), request.getAddress(), request.getShopType(),
+                request.getUsername());
+
+        // Update user with shopId
+        user.setShopId(shop.getId());
 
         // Assign ADMIN role
         UserRole userRole = UserRole.builder()
@@ -154,6 +172,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             // Existing Google user - login
             User user = existingUserByGoogleId.get();
             user.setLastLoginAt(LocalDateTime.now());
+
+            // Create shop if user doesn't have one
+            ensureUserHasShop(user, user.getUsername() + "'s Shop", null, null, null);
+
             userRepository.save(user);
 
             User userWithRoles = userRepository.findByUsernameWithRolesAndPermissions(user.getUsername())
@@ -172,6 +194,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 user.setAuthProvider(AUTH_PROVIDER_LOCAL); // Keep as LOCAL if it was originally local
             }
             user.setLastLoginAt(LocalDateTime.now());
+
+            // Create shop if user doesn't have one
+            ensureUserHasShop(user, user.getUsername() + "'s Shop", null, null, null);
+
             userRepository.save(user);
 
             User userWithRoles = userRepository.findByUsernameWithRolesAndPermissions(user.getUsername())
@@ -180,7 +206,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return buildLoginResponse(userWithRoles);
         }
 
-        // New user - register with Google
+        // New user detected - automatically register them
+        return registerNewGoogleUser(googleUserInfo);
+    }
+
+    private LoginResponse registerNewGoogleUser(GoogleTokenVerifier.GoogleUserInfo googleUserInfo) {
+        // Get default ADMIN role
         Role adminRole = roleRepository.findByCode(DEFAULT_ROLE_CODE)
                 .orElseThrow(() -> new RuntimeException(
                         "Default role ADMIN not found. Please ensure roles are properly seeded."));
@@ -189,10 +220,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String baseUsername = googleUserInfo.getEmail().split("@")[0];
         String username = generateUniqueUsername(baseUsername);
 
+        // Generate shop name from Google user's name
+        String shopName = googleUserInfo.getName() != null && !googleUserInfo.getName().isBlank()
+                ? googleUserInfo.getName() + "'s Shop"
+                : username + "'s Shop";
+
         // Create new user with Google authentication
         User user = User.builder()
                 .username(username)
                 .email(googleUserInfo.getEmail())
+                .fullName(googleUserInfo.getName())
                 .passwordHash("") // No password for Google-only users
                 .status("ACTIVE")
                 .isSystem(false)
@@ -203,6 +240,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         // Save user first to get the ID
         user = userRepository.save(user);
+
+        // Create shop for user with default values
+        Shop shop = createShopForUser(user, shopName, null, null, user.getUsername());
+
+        // Update user with shopId
+        user.setShopId(shop.getId());
 
         // Assign ADMIN role
         UserRole userRole = UserRole.builder()
@@ -227,8 +270,33 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         tokenBlacklistService.blacklist(token);
     }
 
+    private Shop createShopForUser(User user, String shopName, String address, String shopType, String createdBy) {
+        Shop shop = Shop.builder()
+                .ownerUserId(user.getId())
+                .shopName(shopName)
+                .address(address)
+                .shopType(shopType)
+                .status(SHOP_STATUS_ACTIVE)
+                .build();
+        shop.setCreatedBy(createdBy);
+        return shopRepository.save(shop);
+    }
+
+    private void ensureUserHasShop(User user, String defaultShopName, String defaultAddress, String defaultShopType,
+            String defaultCreatedBy) {
+        if (user.getShopId() == null && !shopRepository.existsByOwnerUserId(user.getId())) {
+            Shop shop = createShopForUser(user, defaultShopName, defaultAddress, defaultShopType, defaultCreatedBy);
+            user.setShopId(shop.getId());
+        }
+    }
+
     private LoginResponse buildLoginResponse(User user) {
-        String token = jwtTokenService.generateToken(user);
+        // Get position from active staff
+        String position = staffRepository.findByUserIdAndStatus(user.getId(), "ACTIVE")
+                .map(Staff::getPosition)
+                .orElse(null);
+
+        String token = jwtTokenService.generateToken(user, position);
 
         List<String> roles = user.getRoles().stream()
                 .map(Role::getCode)

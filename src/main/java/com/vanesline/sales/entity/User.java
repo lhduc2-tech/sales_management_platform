@@ -57,6 +57,9 @@ public class User extends BaseEntity {
     @Column(name = "shop_id")
     private UUID shopId;
 
+    @Column(name = "full_name")
+    private String fullName;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private Set<UserRole> userRoles = new HashSet<>();
