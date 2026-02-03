@@ -31,10 +31,10 @@ public class OrderResponse {
     private BigDecimal price;
 
     @JsonProperty ("payment_state")
-    private Boolean paymentState;
+    private String paymentState;
 
     @JsonProperty ("process_state")
-    private Boolean processState;
+    private String processState;
 
     @JsonProperty("delivery_service")
     private String deliveryService;

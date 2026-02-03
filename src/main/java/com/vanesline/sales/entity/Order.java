@@ -40,10 +40,10 @@ public class Order extends BaseEntity {
     private BigDecimal price;
 
     @Column (name = "payment_state")
-    private Boolean payment_state;
+    private String payment_state;
 
     @Column (name = "process_state")
-    private Boolean process_state;
+    private String process_state;
 
     @Column (name = "delivery_service")
     private String deliveryService;
