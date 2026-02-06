@@ -33,16 +33,18 @@ public class OrderRequest {
     @Min(0)
     private BigDecimal price;
 
-    private Boolean paymentState;
-    private Boolean processState;
+    private String paymentState;
+    private String processState;
     @Size(max = 255)
     private String deliveryService;
-
 
     private UUID shopId;
 
     private String createdBy;
     private String updatedBy;
+
+    @NotBlank(message = "Order name is required")
+    private String orderName;
 
 
 

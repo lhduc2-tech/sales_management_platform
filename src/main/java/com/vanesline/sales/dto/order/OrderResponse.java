@@ -6,8 +6,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.vanesline.sales.dto.orderitem.OrderItemResponse;
+
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -18,6 +21,9 @@ import java.util.UUID;
 // data return from an api
 public class OrderResponse {
     private UUID id;
+
+    @JsonProperty("order_items")
+    private List<OrderItemResponse> orderItems;
 
     @JsonProperty ("order_date")
     private OffsetDateTime orderDate;
@@ -31,10 +37,10 @@ public class OrderResponse {
     private BigDecimal price;
 
     @JsonProperty ("payment_state")
-    private Boolean paymentState;
+    private String paymentState;
 
     @JsonProperty ("process_state")
-    private Boolean processState;
+    private String processState;
 
     @JsonProperty("delivery_service")
     private String deliveryService;
@@ -53,4 +59,7 @@ public class OrderResponse {
 
     @JsonProperty("updated_by")
     private String updatedBy;
+
+    @JsonProperty("order_name")
+    private String orderName;
 }

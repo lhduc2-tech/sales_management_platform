@@ -5,6 +5,7 @@ import com.vanesline.sales.entity.base.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.*;
 
@@ -26,7 +27,6 @@ public class Order extends BaseEntity {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-
     @Column (name = "order_date")
     private OffsetDateTime orderDate;
 
@@ -40,10 +40,10 @@ public class Order extends BaseEntity {
     private BigDecimal price;
 
     @Column (name = "payment_state")
-    private Boolean payment_state;
+    private String payment_state;
 
     @Column (name = "process_state")
-    private Boolean process_state;
+    private String process_state;
 
     @Column (name = "delivery_service")
     private String deliveryService;
@@ -52,8 +52,11 @@ public class Order extends BaseEntity {
     private UUID shopId;
 
 
+    @Column (name = "order_name")
+    private String orderName;
 
     @Override
+    @PrePersist
     protected void onCreate() {
         if (id == null) {
             id = UuidCreator.getTimeOrderedEpoch();
