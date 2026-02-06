@@ -4,8 +4,11 @@ import com.vanesline.sales.dto.common.PageResponse;
 import com.vanesline.sales.dto.order.OrderRequest;
 import com.vanesline.sales.dto.order.OrderResponse;
 import com.vanesline.sales.dto.order.SearchOrderCriteria;
+import com.vanesline.sales.dto.orderitem.OrderItemResponse;
 import com.vanesline.sales.dto.staff.StaffResponse;
 import com.vanesline.sales.entity.Order;
+import com.vanesline.sales.entity.OrderItem;
+import com.vanesline.sales.repository.OrderItemRepository;
 import com.vanesline.sales.repository.OrderRepository;
 import com.vanesline.sales.service.contract.OrderService;
 import com.vanesline.sales.specification.OrderSpecification;
@@ -14,6 +17,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 
@@ -25,9 +31,11 @@ import java.util.UUID;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
 
-    public OrderServiceImpl (OrderRepository orderRepository){
+    public OrderServiceImpl (OrderRepository orderRepository, OrderItemRepository orderItemRepository){
         this.orderRepository = orderRepository;
+        this.orderItemRepository = orderItemRepository;
     }
 
     @Override
@@ -42,6 +50,7 @@ public class OrderServiceImpl implements OrderService {
                 .process_state(request.getProcessState())
                 .deliveryService(request.getDeliveryService())
                 .shopId(request.getShopId())
+                .orderName(request.getOrderName())
                 .build();
 
         order.setCreatedBy(request.getCreatedBy());
@@ -100,8 +109,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderResponse toResponse(Order order) {
+        List<OrderItemResponse> orderItemResponses = orderItemRepository.findByOrderId(order.getId())
+                .stream()
+                .map(this::toOrderItemResponse)
+                .collect(Collectors.toList());
+
         return OrderResponse.builder()
                 .id(order.getId())
+                .orderItems(orderItemResponses)
                 .customerName(order.getCustomerName())
                 .orderDate(order.getOrderDate())
                 .orderOrigin(order.getOrderOrigin())
@@ -110,10 +125,26 @@ public class OrderServiceImpl implements OrderService {
                 .processState(order.getProcess_state())
                 .deliveryService(order.getDeliveryService())
                 .shopId(order.getShopId())
+                .orderName(order.getOrderName())
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
                 .createdBy(order.getCreatedBy())
                 .updatedBy(order.getUpdatedBy())
+                .build();
+    }
+
+    private OrderItemResponse toOrderItemResponse(OrderItem orderItem) {
+        return OrderItemResponse.builder()
+                .id(orderItem.getId())
+                .productId(orderItem.getProductId())
+                .quantity(orderItem.getQuantity())
+                .orderId(orderItem.getOrderId())
+                .totalPrice(orderItem.getTotalPrice())
+                .unitPrice(orderItem.getUnitPrice())
+                .createdAt(orderItem.getCreatedAt())
+                .updatedAt(orderItem.getUpdatedAt())
+                .createdBy(orderItem.getCreatedBy())
+                .updatedBy(orderItem.getUpdatedBy())
                 .build();
     }
 }
