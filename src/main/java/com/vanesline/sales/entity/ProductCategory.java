@@ -29,6 +29,9 @@ public class ProductCategory extends BaseEntity {
     @Column (name = "category_description")
     private String categoryDescription;
 
+    @Column (name = "shop_id")
+    private String shopId;
+
     @Override
     protected void onCreate() {
         if (id == null) {
