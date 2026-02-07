@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -27,12 +28,14 @@ public class StaffController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('staff:write')")
     public ResponseEntity<StaffResponse> create(@Valid @RequestBody StaffRequest request) {
         StaffResponse response = staffService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('staff:write')")
     public ResponseEntity<StaffResponse> update(
             @PathVariable UUID id,
             @Valid @RequestBody StaffRequest request) {
@@ -41,12 +44,14 @@ public class StaffController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('staff:read')")
     public ResponseEntity<StaffResponse> getById(@PathVariable UUID id) {
         StaffResponse response = staffService.getById(id);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/search")
+    @PreAuthorize("hasAuthority('staff:read')")
     public ResponseEntity<PageResponse<StaffResponse>> search(
             @RequestBody(required = false) SearchStaffRequest request) {
         if (request == null) {
@@ -68,6 +73,7 @@ public class StaffController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('staff:delete')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         staffService.delete(id);
         return ResponseEntity.noContent().build();

@@ -1,9 +1,12 @@
 package com.vanesline.sales.controller;
 
+import com.vanesline.sales.dto.User.AssignRolesRequest;
 import com.vanesline.sales.dto.User.UserResponse;
 import com.vanesline.sales.entity.Role;
 import com.vanesline.sales.entity.User;
 import com.vanesline.sales.repository.UserRepository;
+import com.vanesline.sales.service.contract.UserRoleService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -19,9 +22,11 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final UserRoleService userRoleService;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, UserRoleService userRoleService) {
         this.userRepository = userRepository;
+        this.userRoleService = userRoleService;
     }
 
     @GetMapping
@@ -59,6 +64,24 @@ public class UserController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/{id}/roles")
+    @PreAuthorize("hasAuthority('user:write')")
+    public ResponseEntity<Void> assignRoles(
+            @PathVariable UUID id,
+            @Valid @RequestBody AssignRolesRequest request) {
+        userRoleService.assignRoles(id, request.getRoleIds());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}/roles")
+    @PreAuthorize("hasAuthority('user:write')")
+    public ResponseEntity<Void> removeRoles(
+            @PathVariable UUID id,
+            @Valid @RequestBody AssignRolesRequest request) {
+        userRoleService.removeRoles(id, request.getRoleIds());
+        return ResponseEntity.noContent().build();
     }
 
     private UserResponse toUserResponse(User user) {

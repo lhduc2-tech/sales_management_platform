@@ -37,7 +37,6 @@ public class OrderItem extends BaseEntity {
     private BigDecimal unitPrice;
 
     @Override
-    @PrePersist
     protected void onCreate() {
         if (id == null) {
             id = UuidCreator.getTimeOrderedEpoch();
