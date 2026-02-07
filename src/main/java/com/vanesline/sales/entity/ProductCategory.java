@@ -30,7 +30,7 @@ public class ProductCategory extends BaseEntity {
     private String categoryDescription;
 
     @Column (name = "shop_id")
-    private String shopId;
+    private UUID shopId;
 
     @Override
     protected void onCreate() {

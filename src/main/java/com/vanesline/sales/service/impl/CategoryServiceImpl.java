@@ -34,7 +34,7 @@ public class CategoryServiceImpl implements CategoryService {
         ProductCategory category = ProductCategory.builder()
                 .categoryName(request.getCategoryName())
                 .categoryDescription(request.getCategoryDescription())
-                .shopId(String.valueOf(request.getShopId()))
+                .shopId(request.getShopId())
                 .build();
 
         category.setCreatedBy(request.getCreatedBy());
@@ -54,7 +54,7 @@ public class CategoryServiceImpl implements CategoryService {
         category.setCategoryName(request.getCategoryName());
         category.setCategoryDescription(request.getCategoryDescription());
         category.setUpdatedBy(request.getUpdatedBy());
-        category.setShopId(String.valueOf(request.getShopId()));
+        category.setShopId(request.getShopId());
         category = categoryRepository.save(category);
 
         return toResponse(category);
@@ -91,7 +91,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .id(category.getId())
                 .categoryName(category.getCategoryName())
                 .categoryDescription(category.getCategoryDescription())
-                .shopId(UUID.fromString(category.getShopId()))
+                .shopId(category.getShopId())
                 .createdAt(category.getCreatedAt())
                 .updatedAt(category.getUpdatedAt())
                 .createdBy(category.getCreatedBy())
