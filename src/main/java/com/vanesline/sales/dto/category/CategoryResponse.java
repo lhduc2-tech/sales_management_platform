@@ -29,6 +29,9 @@ public class CategoryResponse {
     @JsonProperty("created_by")
     private String createdBy;
 
+    @JsonProperty("shop_id")
+    private UUID shopId;
+
     @JsonProperty("updated_at")
     private OffsetDateTime updatedAt;
 

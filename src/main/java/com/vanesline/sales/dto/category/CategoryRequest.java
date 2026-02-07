@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -19,6 +21,9 @@ public class CategoryRequest {
     private String categoryName;
 
     private String categoryDescription;
+
+    @NotBlank (message = "Shop ID is required")
+    private UUID shopId;
 
     private String createdBy;
     private String updatedBy;

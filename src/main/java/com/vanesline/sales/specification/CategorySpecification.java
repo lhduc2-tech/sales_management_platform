@@ -20,6 +20,12 @@ public class CategorySpecification {
                         "%" + criteria.getCategoryName().toLowerCase() + "%"));
             }
 
+            if (StringUtils.hasText(String.valueOf(criteria.getShopId()))) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("shopId")),
+                        "%" + criteria.getCategoryName().toLowerCase() + "%"));
+            }
+
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
