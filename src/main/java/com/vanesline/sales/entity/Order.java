@@ -56,7 +56,6 @@ public class Order extends BaseEntity {
     private String orderName;
 
     @Override
-    @PrePersist
     protected void onCreate() {
         if (id == null) {
             id = UuidCreator.getTimeOrderedEpoch();

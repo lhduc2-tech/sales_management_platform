@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -27,12 +28,14 @@ public class ProductController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('product:write')")
     public ResponseEntity<ProductResponse> create(@Valid @RequestBody ProductRequest request) {
         ProductResponse response = productService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('product:write')")
     public ResponseEntity<ProductResponse> update(
             @PathVariable UUID id,
             @Valid @RequestBody ProductRequest request) {
@@ -41,12 +44,14 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('product:read')")
     public ResponseEntity<ProductResponse> getById(@PathVariable UUID id) {
         ProductResponse response = productService.getById(id);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/search")
+    @PreAuthorize("hasAuthority('product:read')")
     public ResponseEntity<PageResponse<ProductResponse>> search(
             @RequestBody(required = false) SearchProductRequest request) {
         if (request == null) {
@@ -70,6 +75,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('product:delete')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         productService.delete(id);
         return ResponseEntity.noContent().build();

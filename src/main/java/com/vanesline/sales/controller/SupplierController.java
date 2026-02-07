@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -27,12 +28,14 @@ public class SupplierController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('supplier:write')")
     public ResponseEntity<SupplierResponse> create(@Valid @RequestBody SupplierRequest request) {
         SupplierResponse response = supplierService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('supplier:write')")
     public ResponseEntity<SupplierResponse> update(
             @PathVariable UUID id,
             @Valid @RequestBody SupplierRequest request) {
@@ -41,12 +44,14 @@ public class SupplierController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('supplier:read')")
     public ResponseEntity<SupplierResponse> getById(@PathVariable UUID id) {
         SupplierResponse response = supplierService.getById(id);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/search")
+    @PreAuthorize("hasAuthority('supplier:read')")
     public ResponseEntity<PageResponse<SupplierResponse>> search(
             @RequestBody(required = false) SearchSupplierRequest request) {
         if (request == null) {
@@ -72,6 +77,7 @@ public class SupplierController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('supplier:delete')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         supplierService.delete(id);
         return ResponseEntity.noContent().build();

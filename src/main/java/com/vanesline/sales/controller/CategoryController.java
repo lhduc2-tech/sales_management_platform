@@ -12,50 +12,52 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
 @RestController
 @RequestMapping("${application.path.base.private}/category")
-
 public class CategoryController {
     private final CategoryService categoryService;
-
 
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryRequest request){
+    @PreAuthorize("hasAuthority('category:write')")
+    public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryRequest request) {
         CategoryResponse response = categoryService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponse> update (
+    @PreAuthorize("hasAuthority('category:write')")
+    public ResponseEntity<CategoryResponse> update(
             @PathVariable UUID id,
-            @Valid @RequestBody CategoryRequest request)
-    {
+            @Valid @RequestBody CategoryRequest request) {
         CategoryResponse response = categoryService.update(id, request);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('category:read')")
     public ResponseEntity<CategoryResponse> getById(@PathVariable UUID id) {
         CategoryResponse response = categoryService.getById(id);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/search")
+    @PreAuthorize("hasAuthority('category:read')")
     public ResponseEntity<PageResponse<CategoryResponse>> search(
             @RequestBody(required = false) SearchCategoryRequest request) {
         if (request == null) {
             request = new SearchCategoryRequest();
         }
 
-        SearchCategoryCriteria criteria = SearchCategoryCriteria .builder()
+        SearchCategoryCriteria criteria = SearchCategoryCriteria.builder()
                 .categoryName(request.getCategoryName())
                 .build();
 
@@ -69,6 +71,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('category:delete')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         categoryService.delete(id);
         return ResponseEntity.noContent().build();
