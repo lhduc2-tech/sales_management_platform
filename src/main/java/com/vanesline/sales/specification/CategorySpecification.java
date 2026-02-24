@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CategorySpecification {
+
     public static Specification<ProductCategory> withCriteria(SearchCategoryCriteria criteria) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();

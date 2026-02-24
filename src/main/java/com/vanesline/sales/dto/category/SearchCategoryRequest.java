@@ -17,5 +17,6 @@ import java.util.UUID;
 public class SearchCategoryRequest extends BaseRequest {
 
     private String categoryName;
+
     private UUID shopId;
 }

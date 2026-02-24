@@ -8,7 +8,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class RoleSearchCriteria {
+
     private String code;
+
     private String name;
+
     private String status;
 }

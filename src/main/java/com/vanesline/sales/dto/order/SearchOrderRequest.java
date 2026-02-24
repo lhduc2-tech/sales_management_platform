@@ -1,6 +1,5 @@
 package com.vanesline.sales.dto.order;
 
-
 import com.vanesline.sales.dto.common.BaseRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,7 +14,6 @@ import java.time.OffsetDateTime;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class SearchOrderRequest extends BaseRequest {
 
     private String customerName;

@@ -17,8 +17,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class ProductCategory extends BaseEntity {
+
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;

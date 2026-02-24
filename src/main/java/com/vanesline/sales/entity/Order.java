@@ -20,7 +20,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class Order extends BaseEntity {
 
     @Id
@@ -51,7 +50,6 @@ public class Order extends BaseEntity {
     @Column (name = "shop_id")
     private UUID shopId;
 
-
     @Column (name = "order_name")
     private String orderName;
 
@@ -62,5 +60,4 @@ public class Order extends BaseEntity {
         }
         super.onCreate();
     }
-
 }

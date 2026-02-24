@@ -1,6 +1,5 @@
 package com.vanesline.sales.dto.category;
 
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -14,8 +13,8 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class CategoryRequest {
+
     @NotBlank (message = "Category Name is required")
     @Size(max = 255)
     private String categoryName;
@@ -26,6 +25,6 @@ public class CategoryRequest {
     private UUID shopId;
 
     private String createdBy;
-    private String updatedBy;
 
+    private String updatedBy;
 }
