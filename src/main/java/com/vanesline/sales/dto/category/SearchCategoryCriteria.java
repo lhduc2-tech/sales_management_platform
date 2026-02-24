@@ -12,6 +12,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchCategoryCriteria {
+
     private String categoryName;
+
     private UUID shopId;
 }

@@ -9,5 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface ShopRepository extends JpaRepository<Shop, UUID>, JpaSpecificationExecutor<Shop> {
+
     boolean existsByOwnerUserId(UUID ownerUserId);
 }

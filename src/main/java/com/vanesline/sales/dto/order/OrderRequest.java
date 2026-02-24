@@ -14,7 +14,6 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
 // attributes needed to create order
 public class OrderRequest {
 
@@ -45,7 +44,4 @@ public class OrderRequest {
 
     @NotBlank(message = "Order name is required")
     private String orderName;
-
-
-
 }

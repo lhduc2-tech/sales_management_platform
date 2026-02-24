@@ -13,7 +13,6 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class OrderItemRequest {
 
     @NotNull(message = "Product ID is required")

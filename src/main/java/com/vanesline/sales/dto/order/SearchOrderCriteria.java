@@ -11,7 +11,6 @@ import java.time.OffsetDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class SearchOrderCriteria {
 
     private String customerName;

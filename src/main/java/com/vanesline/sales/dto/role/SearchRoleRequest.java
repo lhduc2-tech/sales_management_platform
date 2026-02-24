@@ -8,8 +8,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class SearchRoleRequest {
+
     private String code;
+
     private String name;
+
     private String status;
 
     @Builder.Default

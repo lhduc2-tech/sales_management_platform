@@ -17,9 +17,9 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
 // data return from an api
 public class OrderResponse {
+
     private UUID id;
 
     @JsonProperty("order_items")
