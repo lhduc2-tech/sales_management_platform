@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -46,6 +47,13 @@ public class CategoryController {
     @PreAuthorize("hasAuthority('category:read')")
     public ResponseEntity<CategoryResponse> getById(@PathVariable UUID id) {
         CategoryResponse response = categoryService.getById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping()
+    @PreAuthorize("hasAuthority('category:read')")
+    public ResponseEntity<List<CategoryResponse>> getAllCategory() {
+        List<CategoryResponse> response = categoryService.getAll();
         return ResponseEntity.ok(response);
     }
 
