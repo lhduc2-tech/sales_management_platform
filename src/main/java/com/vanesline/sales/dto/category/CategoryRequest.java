@@ -1,6 +1,7 @@
 package com.vanesline.sales.dto.category;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +22,7 @@ public class CategoryRequest {
 
     private String categoryDescription;
 
-    @NotBlank (message = "Shop ID is required")
+    @NotNull(message = "Shop ID is required")
     private UUID shopId;
 
     private String createdBy;
