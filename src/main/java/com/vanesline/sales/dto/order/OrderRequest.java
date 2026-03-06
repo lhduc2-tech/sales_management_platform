@@ -41,7 +41,4 @@ public class OrderRequest {
 
     private String createdBy;
     private String updatedBy;
-
-    @NotBlank(message = "Order name is required")
-    private String orderName;
 }
