@@ -21,7 +21,6 @@ public class CategoryRequest {
 
     private String categoryDescription;
 
-    @NotBlank (message = "Shop ID is required")
     private UUID shopId;
 
     private String createdBy;
