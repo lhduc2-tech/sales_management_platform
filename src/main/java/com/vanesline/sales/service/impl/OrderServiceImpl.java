@@ -21,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
-
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
@@ -40,6 +40,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse create(OrderRequest request) {
+        String generatedOrderName = "ORD-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
+                + "-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
 
         Order order = Order.builder()
                 .orderDate(request.getOrderDate())
@@ -50,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
                 .process_state(request.getProcessState())
                 .deliveryService(request.getDeliveryService())
                 .shopId(request.getShopId())
-                .orderName(request.getOrderName())
+                .orderName(generatedOrderName)
                 .build();
 
         order.setCreatedBy(request.getCreatedBy());

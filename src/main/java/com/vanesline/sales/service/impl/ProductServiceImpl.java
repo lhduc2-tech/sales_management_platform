@@ -69,6 +69,7 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(request.getPrice());
         product.setUpdatedBy(request.getUpdatedBy());
         product.setShopId(request.getShopId());
+        product.setCategoryId(request.getCategoryId());
 
         product = productRepository.save(product);
         return toResponse(product);
