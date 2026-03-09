@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -20,4 +21,6 @@ public class SearchOrderCriteria {
     private String deliveryService;
 
     private OffsetDateTime orderDate;
+
+    private UUID shopId;
 }

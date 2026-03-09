@@ -43,6 +43,11 @@ public class OrderSpecification {
                         )
                 );
             }
+
+            if (criteria.getShopId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("shopId"), criteria.getShopId()));
+            }
+
             return criteriaBuilder.and(predicates.toArray (new Predicate[0]));
         };
 

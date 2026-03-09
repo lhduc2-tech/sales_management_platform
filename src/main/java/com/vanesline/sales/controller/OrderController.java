@@ -62,6 +62,7 @@ public class OrderController {
                 .orderOrigin(request.getOrderOrigin())
                 .deliveryService(request.getDeliveryService())
                 .orderDate(request.getOrderDate())
+                .shopId(request.getShopId())
                 .build();
 
         Sort sort = request.getSortDir().equalsIgnoreCase("asc")

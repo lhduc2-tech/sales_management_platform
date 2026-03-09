@@ -28,8 +28,8 @@ public class OrderResponse {
     @JsonProperty ("order_date")
     private OffsetDateTime orderDate;
 
-    @JsonProperty("customer_name")
-    private String customerName;
+    @JsonProperty("customer_id")
+    private UUID customerId;
 
     @JsonProperty("order_origin")
     private String orderOrigin;

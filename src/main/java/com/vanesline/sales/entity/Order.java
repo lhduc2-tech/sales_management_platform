@@ -29,8 +29,8 @@ public class Order extends BaseEntity {
     @Column (name = "order_date")
     private OffsetDateTime orderDate;
 
-    @Column (name = "customer_name")
-    private String customerName;
+    @Column (name = "customer_id")
+    private UUID customerId;
 
     @Column (name = "order_origin")
     private String orderOrigin;

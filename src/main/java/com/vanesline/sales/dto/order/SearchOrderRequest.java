@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -23,5 +24,7 @@ public class SearchOrderRequest extends BaseRequest {
     private String deliveryService;
 
     private OffsetDateTime orderDate;
+
+    private UUID shopId;
 
 }

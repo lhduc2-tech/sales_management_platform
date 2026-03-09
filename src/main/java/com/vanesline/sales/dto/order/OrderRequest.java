@@ -21,9 +21,7 @@ public class OrderRequest {
     @NotNull(message = "Order Date is required")
     private OffsetDateTime orderDate;
 
-    @NotBlank(message = "Customer name is required")
-    @Size(max = 255)
-    private String customerName;
+    private UUID customerId;
 
     @NotBlank(message = "Order origin is required")
     @Size(max = 255)

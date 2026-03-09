@@ -45,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = Order.builder()
                 .orderDate(request.getOrderDate())
-                .customerName(request.getCustomerName())
+                .customerId(request.getCustomerId())
                 .orderOrigin(request.getOrderOrigin())
                 .price(request.getPrice())
                 .payment_state(request.getPaymentState())
@@ -69,7 +69,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + id));
 
         order.setOrderDate(request.getOrderDate());
-        order.setCustomerName(request.getCustomerName());
+        order.setCustomerId(request.getCustomerId());
         order.setOrderOrigin(request.getOrderOrigin());
         order.setPrice(request.getPrice());
         order.setPayment_state(request.getPaymentState());
@@ -119,7 +119,7 @@ public class OrderServiceImpl implements OrderService {
         return OrderResponse.builder()
                 .id(order.getId())
                 .orderItems(orderItemResponses)
-                .customerName(order.getCustomerName())
+                .customerId(order.getCustomerId())
                 .orderDate(order.getOrderDate())
                 .orderOrigin(order.getOrderOrigin())
                 .price(order.getPrice())
