@@ -6,6 +6,7 @@ import com.vanesline.sales.dto.product.ProductResponse;
 import com.vanesline.sales.dto.product.ProductSearchCriteria;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ProductService {
@@ -15,6 +16,8 @@ public interface ProductService {
     ProductResponse update(UUID id, ProductRequest request);
 
     ProductResponse getById(UUID id);
+
+    List<ProductResponse> getAllByShopId(UUID shopId);
 
     PageResponse<ProductResponse> search(ProductSearchCriteria criteria, Pageable pageable);
 

@@ -72,8 +72,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CustomerResponse> getAll() {
-        return customerRepository.findAll().stream()
+    public List<CustomerResponse> getAllByShopId(UUID shopId) {
+        return customerRepository.findByShopId(shopId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }

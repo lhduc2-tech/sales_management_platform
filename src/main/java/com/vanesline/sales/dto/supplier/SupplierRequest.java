@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -41,4 +43,6 @@ public class SupplierRequest {
 
     @Size(max = 255)
     private String updatedBy;
+
+    private UUID shopId;
 }

@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -47,6 +48,13 @@ public class ProductController {
     @PreAuthorize("hasAuthority('product:read')")
     public ResponseEntity<ProductResponse> getById(@PathVariable UUID id) {
         ProductResponse response = productService.getById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/by-shop/{shopId}")
+    @PreAuthorize("hasAuthority('product:read')")
+    public ResponseEntity<List<ProductResponse>> getAllProductByShopId(@PathVariable UUID shopId) {
+        List<ProductResponse> response = productService.getAllByShopId(shopId);
         return ResponseEntity.ok(response);
     }
 

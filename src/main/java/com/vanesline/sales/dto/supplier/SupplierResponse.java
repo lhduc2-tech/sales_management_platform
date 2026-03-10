@@ -43,4 +43,7 @@ public class SupplierResponse {
 
     @JsonProperty("updated_by")
     private String updatedBy;
+
+    @JsonProperty("shop_id")
+    private UUID shopId;
 }

@@ -16,7 +16,7 @@ public interface CustomerService {
 
     CustomerResponse getById(UUID id);
 
-    List<CustomerResponse> getAll();
+    List<CustomerResponse> getAllByShopId(UUID shopId);
 
     PageResponse<CustomerResponse> search(SearchCustomerCriteria criteria, Pageable pageable);
 

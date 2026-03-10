@@ -50,10 +50,10 @@ public class CustomerController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping()
+    @GetMapping("/by-shop/{shopId}")
     @PreAuthorize("hasAuthority('customer:read')")
-    public ResponseEntity<List<CustomerResponse>> getAllCustomer() {
-        List<CustomerResponse> response = customerService.getAll();
+    public ResponseEntity<List<CustomerResponse>> getAllCustomerByShopId(@PathVariable UUID shopId) {
+        List<CustomerResponse> response = customerService.getAllByShopId(shopId);
         return ResponseEntity.ok(response);
     }
 

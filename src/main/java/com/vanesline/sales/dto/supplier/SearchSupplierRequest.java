@@ -7,6 +7,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.UUID;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
@@ -25,4 +27,6 @@ public class SearchSupplierRequest extends BaseRequest {
     private String taxCode;
 
     private String website;
+
+    private UUID shopId;
 }

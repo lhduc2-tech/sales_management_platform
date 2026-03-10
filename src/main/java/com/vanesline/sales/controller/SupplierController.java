@@ -65,6 +65,7 @@ public class SupplierController {
                 .email(request.getEmail())
                 .taxCode(request.getTaxCode())
                 .website(request.getWebsite())
+                .shopId(request.getShopId())
                 .build();
 
         Sort sort = request.getSortDir().equalsIgnoreCase("asc")

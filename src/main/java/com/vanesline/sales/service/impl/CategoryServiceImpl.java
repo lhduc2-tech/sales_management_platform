@@ -80,6 +80,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> getAllByShopId(UUID shopId) {
+        return categoryRepository.findByShopId(shopId).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public PageResponse<CategoryResponse> search(SearchCategoryCriteria criteria, Pageable pageable) {
         Page <ProductCategory> page = categoryRepository.findAll(
                 CategorySpecification.withCriteria(criteria),

@@ -38,6 +38,9 @@ public class Supplier extends BaseEntity {
     @Column(name = "tax_code")
     private String taxCode;
 
+    @Column(name = "shop_id")
+    private UUID shopId;
+
     @Override
     protected void onCreate() {
         if (id == null) {

@@ -57,6 +57,13 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/by-shop/{shopId}")
+    @PreAuthorize("hasAuthority('category:read')")
+    public ResponseEntity<List<CategoryResponse>> getAllCategoryByShopId(@PathVariable UUID shopId) {
+        List<CategoryResponse> response = categoryService.getAllByShopId(shopId);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/search")
     @PreAuthorize("hasAuthority('category:read')")
     public ResponseEntity<PageResponse<CategoryResponse>> search(
@@ -67,6 +74,7 @@ public class CategoryController {
 
         SearchCategoryCriteria criteria = SearchCategoryCriteria.builder()
                 .categoryName(request.getCategoryName())
+                .shopId(request.getShopId())
                 .build();
 
         Sort sort = request.getSortDir().equalsIgnoreCase("asc")

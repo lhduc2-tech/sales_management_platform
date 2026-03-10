@@ -18,6 +18,8 @@ public interface CategoryService {
 
     List<CategoryResponse> getAll();
 
+    List<CategoryResponse> getAllByShopId(UUID shopId);
+
     PageResponse<CategoryResponse> search (SearchCategoryCriteria criteria, Pageable pageable);
 
     void delete (UUID id);
