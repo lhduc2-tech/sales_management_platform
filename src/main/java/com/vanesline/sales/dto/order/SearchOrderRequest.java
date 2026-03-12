@@ -19,6 +19,8 @@ public class SearchOrderRequest extends BaseRequest {
 
     private UUID customerId;
 
+    private String customerName;
+
     private String orderOrigin;
 
     private String deliveryService;

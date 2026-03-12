@@ -31,6 +31,9 @@ public class OrderResponse {
     @JsonProperty("customer_id")
     private UUID customerId;
 
+    @JsonProperty("customer_name")
+    private String customerName;
+
     @JsonProperty("order_origin")
     private String orderOrigin;
 

@@ -16,6 +16,8 @@ public class SearchOrderCriteria {
 
     private UUID customerId;
 
+    private String customerName;
+
     private String orderOrigin;
 
     private String deliveryService;
