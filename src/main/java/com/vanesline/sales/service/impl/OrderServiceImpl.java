@@ -48,11 +48,12 @@ public class OrderServiceImpl implements OrderService {
                 .customerId(request.getCustomerId())
                 .orderOrigin(request.getOrderOrigin())
                 .price(request.getPrice())
-                .payment_state(request.getPaymentState())
-                .process_state(request.getProcessState())
+                .paymentState(request.getPaymentState())
+                .processState(request.getProcessState())
                 .deliveryService(request.getDeliveryService())
                 .shopId(request.getShopId())
                 .orderName(generatedOrderName)
+                .paymentMethod(request.getPaymentMethod())
                 .build();
 
         order.setCreatedBy(request.getCreatedBy());
@@ -72,10 +73,11 @@ public class OrderServiceImpl implements OrderService {
         order.setCustomerId(request.getCustomerId());
         order.setOrderOrigin(request.getOrderOrigin());
         order.setPrice(request.getPrice());
-        order.setPayment_state(request.getPaymentState());
-        order.setProcess_state(request.getProcessState());
+        order.setPaymentState(request.getPaymentState());
+        order.setProcessState(request.getProcessState());
         order.setDeliveryService(request.getDeliveryService());
         order.setShopId(request.getShopId());
+        order.setPaymentMethod(request.getPaymentMethod());
         order.setUpdatedBy(request.getUpdatedBy());
 
         order = orderRepository.save(order);
@@ -123,11 +125,12 @@ public class OrderServiceImpl implements OrderService {
                 .orderDate(order.getOrderDate())
                 .orderOrigin(order.getOrderOrigin())
                 .price(order.getPrice())
-                .paymentState(order.getPayment_state())
-                .processState(order.getProcess_state())
+                .paymentState(order.getPaymentState())
+                .processState(order.getProcessState())
                 .deliveryService(order.getDeliveryService())
                 .shopId(order.getShopId())
                 .orderName(order.getOrderName())
+                .paymentMethod(order.getPaymentMethod())
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
                 .createdBy(order.getCreatedBy())

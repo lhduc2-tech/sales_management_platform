@@ -58,7 +58,7 @@ public class OrderController {
         }
 
         SearchOrderCriteria criteria = SearchOrderCriteria.builder()
-                .customerName(request.getCustomerName())
+                .customerId(request.getCustomerId())
                 .orderOrigin(request.getOrderOrigin())
                 .deliveryService(request.getDeliveryService())
                 .orderDate(request.getOrderDate())

@@ -14,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class SearchOrderCriteria {
 
-    private String customerName;
+    private UUID customerId;
 
     private String orderOrigin;
 

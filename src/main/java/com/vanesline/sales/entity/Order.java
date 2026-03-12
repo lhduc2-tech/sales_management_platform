@@ -39,10 +39,10 @@ public class Order extends BaseEntity {
     private BigDecimal price;
 
     @Column (name = "payment_state")
-    private String payment_state;
+    private String paymentState;
 
     @Column (name = "process_state")
-    private String process_state;
+    private String processState;
 
     @Column (name = "delivery_service")
     private String deliveryService;
@@ -52,6 +52,9 @@ public class Order extends BaseEntity {
 
     @Column (name = "order_name")
     private String orderName;
+
+    @Column (name = "payment_method")
+    private String paymentMethod;
 
     @Override
     protected void onCreate() {

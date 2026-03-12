@@ -62,4 +62,7 @@ public class OrderResponse {
 
     @JsonProperty("order_name")
     private String orderName;
+
+    @JsonProperty("payment_method")
+    private String paymentMethod;
 }

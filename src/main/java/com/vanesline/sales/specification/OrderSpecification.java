@@ -16,11 +16,8 @@ public class OrderSpecification {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (StringUtils.hasText(criteria.getCustomerName())){
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("customerName")),
-                        "%" + criteria.getCustomerName().toLowerCase() + "%"));
-
+            if (criteria.getCustomerId() != null){
+                predicates.add(criteriaBuilder.equal(root.get("customerId"), criteria.getCustomerId()));
             }
             if (StringUtils.hasText(criteria.getOrderOrigin())){
                 predicates.add(criteriaBuilder.like(

@@ -17,7 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class SearchOrderRequest extends BaseRequest {
 
-    private String customerName;
+    private UUID customerId;
 
     private String orderOrigin;
 

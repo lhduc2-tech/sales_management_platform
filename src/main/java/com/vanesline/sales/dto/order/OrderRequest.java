@@ -39,4 +39,7 @@ public class OrderRequest {
 
     private String createdBy;
     private String updatedBy;
+
+    @Size(max = 255)
+    private String paymentMethod;
 }
