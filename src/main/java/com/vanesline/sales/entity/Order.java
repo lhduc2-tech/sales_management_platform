@@ -26,37 +26,37 @@ public class Order extends BaseEntity {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column (name = "order_date")
+    @Column(name = "order_date")
     private OffsetDateTime orderDate;
 
-    @Column (name = "customer_id")
+    @Column(name = "customer_id")
     private UUID customerId;
 
-    @Column (name = "order_origin")
+    @Column(name = "order_origin")
     private String orderOrigin;
 
-    @Column (name = "price")
+    @Column(name = "price")
     private BigDecimal price;
 
-    @Column (name = "payment_state")
+    @Column(name = "payment_state")
     private String paymentState;
 
-    @Column (name = "process_state")
+    @Column(name = "process_state")
     private String processState;
 
-    @Column (name = "delivery_service")
+    @Column(name = "delivery_service")
     private String deliveryService;
 
-    @Column (name = "shop_id")
+    @Column(name = "shop_id")
     private UUID shopId;
 
-    @Column (name = "order_name")
+    @Column(name = "order_name")
     private String orderName;
 
-    @Column (name = "payment_method")
+    @Column(name = "payment_method")
     private String paymentMethod;
 
-    @Column (name = "description")
+    @Column(name = "description")
     private String description;
 
     @Override
