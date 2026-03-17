@@ -29,6 +29,8 @@ public class PurchaseOrder extends BaseEntity {
     @Column(name = "note")
     private String note;
 
+    @Column(name = "shop_id")
+    private UUID shopId;
     
     @PrePersist
     protected void onCreate() {
