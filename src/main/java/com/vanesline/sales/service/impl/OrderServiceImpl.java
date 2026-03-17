@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -52,21 +53,50 @@ public class OrderServiceImpl implements OrderService {
                 .orderDate(request.getOrderDate())
                 .customerId(request.getCustomerId())
                 .orderOrigin(request.getOrderOrigin())
-                .price(request.getPrice())
+                .price(request.getPrice() != null ? request.getPrice() : BigDecimal.ZERO)
                 .paymentState(request.getPaymentState())
                 .processState(request.getProcessState())
                 .deliveryService(request.getDeliveryService())
                 .shopId(request.getShopId())
                 .orderName(generatedOrderName)
                 .paymentMethod(request.getPaymentMethod())
+                .description(request.getDescription())
                 .build();
 
         order.setCreatedBy(request.getCreatedBy());
         order.setUpdatedBy(request.getUpdatedBy());
 
-        order = orderRepository.save(order);
+        final Order savedOrder = orderRepository.save(order);
 
-        return toResponse(order);
+        if (request.getOrderItems() != null && !request.getOrderItems().isEmpty()) {
+            java.util.List<OrderItem> items = request.getOrderItems().stream()
+                    .map(itemReq -> {
+                        BigDecimal totalPrice = itemReq.getUnitPrice().multiply(BigDecimal.valueOf(itemReq.getQuantity()));
+                        OrderItem item = OrderItem.builder()
+                                .productId(itemReq.getProductId())
+                                .quantity(itemReq.getQuantity())
+                                .orderId(savedOrder.getId())
+                                .unitPrice(itemReq.getUnitPrice())
+                                .totalPrice(totalPrice)
+                                .build();
+                        item.setCreatedBy(request.getCreatedBy());
+                        item.setUpdatedBy(request.getUpdatedBy());
+                        return item;
+                    })
+                    .collect(Collectors.toList());
+            orderItemRepository.saveAll(items);
+
+            // Update order total price ONLY if not provided or zero
+            if (request.getPrice() == null || request.getPrice().compareTo(BigDecimal.ZERO) == 0) {
+                BigDecimal total = items.stream()
+                        .map(OrderItem::getTotalPrice)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                savedOrder.setPrice(total);
+                orderRepository.save(savedOrder);
+            }
+        }
+
+        return toResponse(savedOrder);
     }
 
     @Override
@@ -83,6 +113,7 @@ public class OrderServiceImpl implements OrderService {
         order.setDeliveryService(request.getDeliveryService());
         order.setShopId(request.getShopId());
         order.setPaymentMethod(request.getPaymentMethod());
+        order.setDescription(request.getDescription());
         order.setUpdatedBy(request.getUpdatedBy());
 
         order = orderRepository.save(order);
@@ -129,10 +160,18 @@ public class OrderServiceImpl implements OrderService {
                 .collect(Collectors.toList());
 
         String customerName = null;
+        String phoneNumber = null;
+        String email = null;
+        String address = null;
+
         if (order.getCustomerId() != null) {
-            customerName = customerRepository.findById(order.getCustomerId())
-                    .map(c -> c.getFullName())
-                    .orElse(null);
+            com.vanesline.sales.entity.Customer customer = customerRepository.findById(order.getCustomerId()).orElse(null);
+            if (customer != null) {
+                customerName = customer.getFullName();
+                phoneNumber = customer.getPhoneNumber();
+                email = customer.getEmail();
+                address = customer.getAddress();
+            }
         }
 
         return OrderResponse.builder()
@@ -140,6 +179,9 @@ public class OrderServiceImpl implements OrderService {
                 .orderItems(orderItemResponses)
                 .customerId(order.getCustomerId())
                 .customerName(customerName)
+                .phoneNumber(phoneNumber)
+                .email(email)
+                .address(address)
                 .orderDate(order.getOrderDate())
                 .orderOrigin(order.getOrderOrigin())
                 .price(order.getPrice())
@@ -149,6 +191,7 @@ public class OrderServiceImpl implements OrderService {
                 .shopId(order.getShopId())
                 .orderName(order.getOrderName())
                 .paymentMethod(order.getPaymentMethod())
+                .description(order.getDescription())
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
                 .createdBy(order.getCreatedBy())
@@ -176,6 +219,7 @@ public class OrderServiceImpl implements OrderService {
                 .shopId(p.getShopId())
                 .orderName(p.getOrderName())
                 .paymentMethod(p.getPaymentMethod())
+                .description(p.getDescription())
                 .createdAt(toOffsetDateTime(p.getCreatedAt()))
                 .updatedAt(toOffsetDateTime(p.getUpdatedAt()))
                 .createdBy(p.getCreatedBy())

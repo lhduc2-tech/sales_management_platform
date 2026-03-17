@@ -56,6 +56,9 @@ public class Order extends BaseEntity {
     @Column (name = "payment_method")
     private String paymentMethod;
 
+    @Column (name = "description")
+    private String description;
+
     @Override
     protected void onCreate() {
         if (id == null) {

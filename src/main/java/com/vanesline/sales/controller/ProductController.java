@@ -1,10 +1,12 @@
 package com.vanesline.sales.controller;
 
 import com.vanesline.sales.dto.common.PageResponse;
+import com.vanesline.sales.dto.order.OrderResponse;
 import com.vanesline.sales.dto.product.ProductRequest;
 import com.vanesline.sales.dto.product.ProductResponse;
 import com.vanesline.sales.dto.product.ProductSearchCriteria;
 import com.vanesline.sales.dto.product.SearchProductRequest;
+import com.vanesline.sales.service.contract.OrderService;
 import com.vanesline.sales.service.contract.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
@@ -23,9 +25,11 @@ import java.util.UUID;
 public class ProductController {
 
     private final ProductService productService;
+    private final OrderService orderService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, OrderService orderService) {
         this.productService = productService;
+        this.orderService = orderService;
     }
 
     @PostMapping
@@ -51,10 +55,17 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/by-shop/{shopId}")
+    @GetMapping("/all-by-shop/{shopId}")
     @PreAuthorize("hasAuthority('product:read')")
     public ResponseEntity<List<ProductResponse>> getAllProductByShopId(@PathVariable UUID shopId) {
         List<ProductResponse> response = productService.getAllByShopId(shopId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/by-shop/{orderId}")
+    @PreAuthorize("hasAuthority('order:read')")
+    public ResponseEntity<OrderResponse> getOrderDetailByOrderId(@PathVariable UUID orderId) {
+        com.vanesline.sales.dto.order.OrderResponse response = orderService.getById(orderId);
         return ResponseEntity.ok(response);
     }
 

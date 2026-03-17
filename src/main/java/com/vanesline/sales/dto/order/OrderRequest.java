@@ -1,5 +1,6 @@
 package com.vanesline.sales.dto.order;
 
+import com.vanesline.sales.dto.orderitem.OrderItemRequest;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import java.util.List;
 
 @Data
 @Builder
@@ -42,4 +44,9 @@ public class OrderRequest {
 
     @Size(max = 255)
     private String paymentMethod;
+
+    @Size(max = 255)
+    private String description;
+
+    private List<OrderItemRequest> orderItems;
 }

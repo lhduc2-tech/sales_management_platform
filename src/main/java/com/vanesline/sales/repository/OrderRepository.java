@@ -32,7 +32,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
                    o.created_at      AS createdAt,
                    o.created_by      AS createdBy,
                    o.updated_at      AS updatedAt,
-                   o.updated_by      AS updatedBy
+                   o.updated_by      AS updatedBy,
+                   o.description     AS description
             FROM orders o
             LEFT JOIN customers c ON o.customer_id = c.id
             WHERE (:customerId IS NULL OR o.customer_id = :customerId)

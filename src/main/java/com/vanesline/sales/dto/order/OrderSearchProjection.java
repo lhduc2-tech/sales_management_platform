@@ -40,5 +40,7 @@ public interface OrderSearchProjection {
     Instant getUpdatedAt();
 
     String getUpdatedBy();
+
+    String getDescription();
 }
 

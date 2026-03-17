@@ -192,6 +192,8 @@ class OrderServiceImplTest {
             public String getCreatedBy() { return "SYSTEM"; }
             @Override
             public String getUpdatedBy() { return "SYSTEM"; }
+            @Override
+            public String getDescription() { return "Test Description"; }
         };
 
         Page<OrderSearchProjection> page = new PageImpl<>(List.of(projection), pageable, 1);
@@ -213,5 +215,49 @@ class OrderServiceImplTest {
         assertEquals(1, response.getContent().size());
         assertEquals(orderId, response.getContent().get(0).getId());
         assertEquals("Test Customer", response.getContent().get(0).getCustomerName());
+    }
+
+    @Test
+    void create_PreservesRequestedPrice_WhenItemsPresent() {
+        request.setPrice(BigDecimal.valueOf(50000));
+        com.vanesline.sales.dto.orderitem.OrderItemRequest itemReq = new com.vanesline.sales.dto.orderitem.OrderItemRequest();
+        itemReq.setProductId(UUID.randomUUID());
+        itemReq.setQuantity(1);
+        itemReq.setUnitPrice(BigDecimal.valueOf(20000));
+        request.setOrderItems(List.of(itemReq));
+
+        order.setPrice(BigDecimal.valueOf(50000));
+
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+        when(orderItemRepository.findByOrderId(orderId)).thenReturn(List.of());
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(Customer.builder().fullName("Test Customer").build()));
+
+        OrderResponse response = orderService.create(request);
+
+        assertNotNull(response);
+        assertEquals(BigDecimal.valueOf(50000), response.getPrice());
+        verify(orderRepository, times(1)).save(any(Order.class));
+    }
+
+    @Test
+    void create_CalculatesPrice_WhenPriceIsNull() {
+        request.setPrice(null);
+        com.vanesline.sales.dto.orderitem.OrderItemRequest itemReq = new com.vanesline.sales.dto.orderitem.OrderItemRequest();
+        itemReq.setProductId(UUID.randomUUID());
+        itemReq.setQuantity(2);
+        itemReq.setUnitPrice(BigDecimal.valueOf(10000));
+        request.setOrderItems(List.of(itemReq));
+
+        order.setPrice(BigDecimal.valueOf(20000));
+
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+        when(orderItemRepository.findByOrderId(orderId)).thenReturn(List.of());
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(Customer.builder().fullName("Test Customer").build()));
+
+        OrderResponse response = orderService.create(request);
+
+        assertNotNull(response);
+        assertEquals(BigDecimal.valueOf(20000), response.getPrice());
+        verify(orderRepository, times(2)).save(any(Order.class));
     }
 }
