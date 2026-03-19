@@ -20,7 +20,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ProductRequest {
 
-    @NotBlank(message = "Code is required")
     @Size(max = 255)
     private String code;
 
