@@ -20,4 +20,6 @@ public class ProductSearchCriteria {
     private UUID shopId;
 
     private String categoryName;
+
+    private String description;
 }

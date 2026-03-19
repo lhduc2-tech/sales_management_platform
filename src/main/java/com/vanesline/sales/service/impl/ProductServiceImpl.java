@@ -50,6 +50,8 @@ public class ProductServiceImpl implements ProductService {
                 .price(request.getPrice())
                 .shopId(request.getShopId())
                 .categoryId(request.getCategoryId())
+                .description(request.getDescription())
+                .imgUrl(request.getImgUrl())
                 .build();
 
         product.setCreatedBy(request.getCreatedBy());
@@ -76,6 +78,8 @@ public class ProductServiceImpl implements ProductService {
         product.setUpdatedBy(request.getUpdatedBy());
         product.setShopId(request.getShopId());
         product.setCategoryId(request.getCategoryId());
+        product.setDescription(request.getDescription());
+        product.setImgUrl(request.getImgUrl());
 
         product = productRepository.save(product);
         return toResponse(product);
@@ -134,6 +138,8 @@ public class ProductServiceImpl implements ProductService {
                 .price(product.getPrice())
                 .categoryId(product.getCategoryId())
                 .categoryName(categoryName)
+                .description(product.getDescription())
+                .imgUrl(product.getImgUrl())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .createdBy(product.getCreatedBy())

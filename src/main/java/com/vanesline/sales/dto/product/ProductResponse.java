@@ -43,4 +43,9 @@ public class ProductResponse {
 
     @JsonProperty("category_name")
     private String categoryName;
+
+    private String description;
+
+    @JsonProperty("img_url")
+    private String imgUrl;
 }

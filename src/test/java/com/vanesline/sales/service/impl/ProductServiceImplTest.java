@@ -61,6 +61,8 @@ class ProductServiceImplTest {
                 .price(BigDecimal.valueOf(100.0))
                 .shopId(shopId)
                 .categoryId(categoryId)
+                .description("Test Description")
+                .imgUrl("http://test.com/img.png")
                 .build();
         product.setId(productId);
 
@@ -70,6 +72,8 @@ class ProductServiceImplTest {
                 .price(BigDecimal.valueOf(100.0))
                 .shopId(shopId)
                 .categoryId(categoryId)
+                .description("Test Description")
+                .imgUrl("http://test.com/img.png")
                 .build();
     }
 
@@ -86,6 +90,8 @@ class ProductServiceImplTest {
         assertEquals(request.getCode(), response.getCode());
         assertEquals(request.getName(), response.getName());
         assertEquals("Category 1", response.getCategoryName());
+        assertEquals(request.getDescription(), response.getDescription());
+        assertEquals(request.getImgUrl(), response.getImgUrl());
         verify(productRepository).save(any(Product.class));
     }
 
@@ -167,7 +173,7 @@ class ProductServiceImplTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Product> productPage = new PageImpl<>(List.of(product), pageable, 1);
 
-        when(productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(productPage);
+        when(productRepository.findAll((Specification<Product>) any(), eq(pageable))).thenReturn(productPage);
 
         PageResponse<ProductResponse> response = productService.search(criteria, pageable);
 

@@ -27,10 +27,10 @@ public class ProductSpecification {
                         "%" + criteria.getName().toLowerCase() + "%"));
             }
 
-            if (StringUtils.hasText(criteria.getCategoryName())) {
+            if (StringUtils.hasText(criteria.getDescription())) {
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("category_name")),
-                        "%" + criteria.getName().toLowerCase() + "%"));
+                        criteriaBuilder.lower(root.get("description")),
+                        "%" + criteria.getDescription().toLowerCase() + "%"));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
