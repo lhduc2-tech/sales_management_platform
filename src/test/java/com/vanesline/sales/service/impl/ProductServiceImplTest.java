@@ -136,7 +136,7 @@ class ProductServiceImplTest {
 
     @Test
     void getAllByShopId_Success() {
-        when(productRepository.findByShopId(shopId)).thenReturn(List.of(product));
+        when(productRepository.findByShopIdOrderByUpdatedAtDesc(shopId)).thenReturn(List.of(product));
 
         List<ProductResponse> responses = productService.getAllByShopId(shopId);
 

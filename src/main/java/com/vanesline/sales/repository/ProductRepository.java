@@ -20,7 +20,7 @@ public interface ProductRepository
 
     boolean existsByCode(String code);
 
-    List<Product> findByShopId(UUID shopId);
+    List<Product> findByShopIdOrderByUpdatedAtDesc(UUID shopId);
 
     @Query(value = "SELECT MAX(CAST(SUBSTRING(code, 3) AS INTEGER)) FROM products WHERE shop_id = :shopId AND code LIKE 'SP%'", nativeQuery = true)
     Optional<Integer> findMaxCodeNumberByShopId(@Param("shopId") UUID shopId);

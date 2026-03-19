@@ -92,7 +92,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllByShopId(UUID shopId) {
-        return productRepository.findByShopId(shopId).stream()
+        return productRepository.findByShopIdOrderByUpdatedAtDesc(shopId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
