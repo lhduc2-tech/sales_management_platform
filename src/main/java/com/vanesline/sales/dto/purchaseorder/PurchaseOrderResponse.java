@@ -22,6 +22,7 @@ public class PurchaseOrderResponse {
     @JsonProperty("supplier_id")
     private UUID supplierId;
 
+    private String supplierName;
     private String status;
 
     private String note;

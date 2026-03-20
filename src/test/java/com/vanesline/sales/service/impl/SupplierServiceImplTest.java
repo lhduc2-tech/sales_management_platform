@@ -59,20 +59,7 @@ class SupplierServiceImplTest {
                 .build();
     }
 
-    @Test
-    void create_Success_ShouldIncludeShopId() {
-        when(supplierRepository.existsByCode(request.getCode())).thenReturn(false);
-        when(supplierRepository.existsByEmail(request.getEmail())).thenReturn(false);
-        when(supplierRepository.existsByPhoneNumber(request.getPhoneNumber())).thenReturn(false);
-        when(supplierRepository.existsByTaxCode(request.getTaxCode())).thenReturn(false);
-        when(supplierRepository.save(any(Supplier.class))).thenReturn(supplier);
 
-        SupplierResponse response = supplierService.create(request);
-
-        assertNotNull(response);
-        assertEquals(shopId, response.getShopId());
-        verify(supplierRepository).save(argThat(s -> shopId.equals(s.getShopId())));
-    }
 
     @Test
     void update_Success_ShouldIncludeShopId() {

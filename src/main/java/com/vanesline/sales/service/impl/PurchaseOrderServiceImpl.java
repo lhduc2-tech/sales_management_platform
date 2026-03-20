@@ -28,6 +28,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final InventoryService inventoryService;
     private final StockMovementService stockService;
     private final ProductRepository productRepository;
+    private final SupplierRepository supplierRepository;
     @Override
     public UUID create(PurchaseOrderRequest request) {
 
@@ -157,6 +158,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     private PurchaseOrderResponse toResponse(PurchaseOrder po, List<PurchaseOrderItem> items) {
 
+    String supplierName = supplierRepository.findById(po.getSupplierId())
+            .map(Supplier::getSupplierName)
+            .orElse("Unknown");
+
     List<PurchaseOrderItemResponse> itemResponses = items.stream()
             .map(i -> {
 
@@ -168,7 +173,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                         .id(i.getId())
                         .purchaseOrderId(i.getPurchaseOrderId())
                         .productId(i.getProductId())
-                        .productName(productName) // ✅ FIX
+                        .productName(productName)
                         .quantity(i.getQuantity())
                         .importPrice(i.getImportPrice())
                         .build();
@@ -178,9 +183,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     return PurchaseOrderResponse.builder()
             .id(po.getId())
             .supplierId(po.getSupplierId())
+            .supplierName(supplierName) // ✅ thêm
             .status(po.getStatus())
             .note(po.getNote())
-            .purchaseOrderItems(itemResponses) // ✅ đúng field name
+            .purchaseOrderItems(itemResponses)
             .createdAt(po.getCreatedAt())
             .updatedAt(po.getUpdatedAt())
             .createdBy(po.getCreatedBy())

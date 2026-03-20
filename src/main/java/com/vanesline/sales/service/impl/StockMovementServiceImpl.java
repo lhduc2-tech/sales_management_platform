@@ -5,6 +5,8 @@ import com.vanesline.sales.dto.common.PageResponse;
 import com.vanesline.sales.dto.stockmovement.SearchStockMovementRequest;
 import com.vanesline.sales.dto.stockmovement.StockMovementResponse;
 import com.vanesline.sales.entity.StockMovement;
+import com.vanesline.sales.entity.Product;
+import com.vanesline.sales.repository.ProductRepository;
 import com.vanesline.sales.repository.StockMovementRepository;
 import com.vanesline.sales.service.contract.StockMovementService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class StockMovementServiceImpl implements StockMovementService {
 
+    private final ProductRepository productRepository;
     private final StockMovementRepository stockMovementRepository;
 
     @Override
@@ -41,15 +44,22 @@ public class StockMovementServiceImpl implements StockMovementService {
     }
 
     private StockMovementResponse toResponse(StockMovement sm) {
-        StockMovementResponse res = new StockMovementResponse();
-        res.setId(sm.getId());
-        res.setProductId(sm.getProductId());
-        res.setShopId(sm.getShopId());
-        res.setMovementType(sm.getMovementType());
-        res.setQuantity(sm.getQuantity());
-        res.setNote(sm.getNote());
-        res.setCreatedAt(sm.getCreatedAt());
-        res.setCreatedBy(sm.getCreatedBy());
-        return res;
-    }
+
+    String productName = productRepository.findById(sm.getProductId())
+            .map(Product::getName)
+            .orElse("Unknown");
+
+    StockMovementResponse res = new StockMovementResponse();
+    res.setId(sm.getId());
+    res.setProductId(sm.getProductId());
+    res.setProductName(productName); // ✅ OK
+    res.setShopId(sm.getShopId());
+    res.setMovementType(sm.getMovementType());
+    res.setQuantity(sm.getQuantity());
+    res.setNote(sm.getNote());
+    res.setCreatedAt(sm.getCreatedAt());
+    res.setCreatedBy(sm.getCreatedBy());
+
+    return res;
+}
 }

@@ -20,6 +20,9 @@ public class StockMovementResponse {
     @JsonProperty("product_id")
     private UUID productId;
 
+    @JsonProperty("product_name")
+    private String productName;
+    
     @JsonProperty("shop_id")
     private UUID shopId;
 
