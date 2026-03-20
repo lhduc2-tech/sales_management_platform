@@ -22,4 +22,6 @@ public class ProductSearchCriteria {
     private String categoryName;
 
     private String description;
+
+    private String searchQuery;
 }

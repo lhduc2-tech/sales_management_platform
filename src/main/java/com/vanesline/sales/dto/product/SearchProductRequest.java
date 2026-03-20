@@ -23,4 +23,6 @@ public class SearchProductRequest extends BaseRequest {
     private UUID shopId;
 
     private String categoryName;
+
+    private String searchQuery;
 }

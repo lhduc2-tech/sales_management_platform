@@ -81,6 +81,8 @@ public class ProductController {
                 .code(request.getCode())
                 .name(request.getName())
                 .shopId(request.getShopId())
+                .categoryName(request.getCategoryName())
+                .searchQuery(request.getSearchQuery())
                 .build();
 
         Sort sort = request.getSortDir().equalsIgnoreCase("asc")

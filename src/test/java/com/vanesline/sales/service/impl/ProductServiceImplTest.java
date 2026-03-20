@@ -181,4 +181,21 @@ class ProductServiceImplTest {
         assertEquals(1, response.getContent().size());
         assertEquals(product.getId(), response.getContent().get(0).getId());
     }
+
+    @Test
+    void search_WithSearchQuery_Success() {
+        ProductSearchCriteria criteria = new ProductSearchCriteria();
+        criteria.setSearchQuery("test");
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Product> productPage = new PageImpl<>(List.of(product), pageable, 1);
+
+        when(productRepository.findAll((Specification<Product>) any(), eq(pageable))).thenReturn(productPage);
+
+        PageResponse<ProductResponse> response = productService.search(criteria, pageable);
+
+        assertNotNull(response);
+        assertEquals(1, response.getContent().size());
+        assertEquals(product.getId(), response.getContent().get(0).getId());
+        verify(productRepository).findAll(any(Specification.class), eq(pageable));
+    }
 }
