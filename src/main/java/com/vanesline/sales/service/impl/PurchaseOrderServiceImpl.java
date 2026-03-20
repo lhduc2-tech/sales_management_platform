@@ -27,7 +27,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final PurchaseOrderItemRepository itemRepo;
     private final InventoryService inventoryService;
     private final StockMovementService stockService;
-
+    private final ProductRepository productRepository;
     @Override
     public UUID create(PurchaseOrderRequest request) {
 
@@ -35,6 +35,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 .supplierId(request.getSupplierId())
                 .note(request.getNote())
                 .status("DRAFT")
+                .shopId(request.getShopId()) // ✅ THÊM
                 .build();
 
         po.setCreatedBy(request.getCreatedBy());
@@ -63,6 +64,39 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         itemRepo.save(item);
     }
 
+    @Override
+    public void updateItem(UUID itemId, UpdatePurchaseOrderItemRequest request) {
+
+        PurchaseOrderItem item = itemRepo.findById(itemId)
+                .orElseThrow(() -> new EntityNotFoundException("Item not found"));
+
+        PurchaseOrder po = poRepo.findById(item.getPurchaseOrderId())
+                .orElseThrow(() -> new EntityNotFoundException("PO not found"));
+
+        if (!"DRAFT".equals(po.getStatus())) {
+            throw new RuntimeException("Cannot update item after confirm");
+        }
+
+        item.setQuantity(request.getQuantity());
+        item.setImportPrice(request.getImportPrice());
+
+        itemRepo.save(item);
+    }
+    @Override
+    public void deleteItem(UUID itemId) {
+
+        PurchaseOrderItem item = itemRepo.findById(itemId)
+                .orElseThrow(() -> new EntityNotFoundException("Item not found"));
+
+        PurchaseOrder po = poRepo.findById(item.getPurchaseOrderId())
+                .orElseThrow(() -> new EntityNotFoundException("PO not found"));
+
+        if (!"DRAFT".equals(po.getStatus())) {
+            throw new RuntimeException("Cannot delete item after confirm");
+        }
+
+        itemRepo.delete(item);
+    }
     @Override
     public void confirm(UUID purchaseOrderId) {
 
@@ -98,13 +132,60 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Override
     @Transactional(readOnly = true)
     public PurchaseOrderResponse getById(UUID id) {
-        throw new UnsupportedOperationException("TODO");
+
+        PurchaseOrder po = poRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("PO not found"));
+
+        List<PurchaseOrderItem> items = itemRepo.findByPurchaseOrderId(id);
+
+        return toResponse(po, items);
     }
 
     @Override
     @Transactional(readOnly = true)
     public PageResponse<PurchaseOrderResponse> search(SearchPurchaseOrderRequest request, Pageable pageable) {
+
         Page<PurchaseOrder> page = poRepo.findAll(pageable);
-        return PageResponse.from(page.map(po -> new PurchaseOrderResponse()));
+
+        Page<PurchaseOrderResponse> responsePage = page.map(po -> {
+            List<PurchaseOrderItem> items = itemRepo.findByPurchaseOrderId(po.getId());
+            return toResponse(po, items);
+        });
+
+        return PageResponse.from(responsePage);
     }
+
+    private PurchaseOrderResponse toResponse(PurchaseOrder po, List<PurchaseOrderItem> items) {
+
+    List<PurchaseOrderItemResponse> itemResponses = items.stream()
+            .map(i -> {
+
+                String productName = productRepository.findById(i.getProductId())
+                        .map(Product::getName)
+                        .orElse("Unknown");
+
+                return PurchaseOrderItemResponse.builder()
+                        .id(i.getId())
+                        .purchaseOrderId(i.getPurchaseOrderId())
+                        .productId(i.getProductId())
+                        .productName(productName) // ✅ FIX
+                        .quantity(i.getQuantity())
+                        .importPrice(i.getImportPrice())
+                        .build();
+            })
+            .toList();
+
+    return PurchaseOrderResponse.builder()
+            .id(po.getId())
+            .supplierId(po.getSupplierId())
+            .status(po.getStatus())
+            .note(po.getNote())
+            .purchaseOrderItems(itemResponses) // ✅ đúng field name
+            .createdAt(po.getCreatedAt())
+            .updatedAt(po.getUpdatedAt())
+            .createdBy(po.getCreatedBy())
+            .updatedBy(po.getUpdatedBy())
+            .shopId(po.getShopId())
+            .build();
+}
 }

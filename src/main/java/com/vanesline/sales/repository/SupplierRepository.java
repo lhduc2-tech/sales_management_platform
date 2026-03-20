@@ -9,17 +9,18 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface SupplierRepository extends JpaRepository<Supplier, UUID>, JpaSpecificationExecutor<Supplier> {
+public interface SupplierRepository 
+    extends JpaRepository<Supplier, UUID>, JpaSpecificationExecutor<Supplier> {
 
-    Optional<Supplier> findByEmail(String email);
+    Optional<Supplier> findByEmailAndShopId(String email, UUID shopId);
 
-    Optional<Supplier> findByCode(String code);
+    Optional<Supplier> findByCodeAndShopId(String code, UUID shopId);
 
-    boolean existsByEmail(String email);
+    boolean existsByEmailAndShopId(String email, UUID shopId);
 
-    boolean existsByCode(String code);
+    boolean existsByCodeAndShopId(String code, UUID shopId);
 
-    boolean existsByPhoneNumber(String phoneNumber);
+    boolean existsByPhoneNumberAndShopId(String phoneNumber, UUID shopId);
 
-    boolean existsByTaxCode(String taxCode);
+    boolean existsByTaxCodeAndShopId(String taxCode, UUID shopId);
 }

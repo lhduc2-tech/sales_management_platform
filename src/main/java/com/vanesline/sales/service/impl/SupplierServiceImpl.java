@@ -28,25 +28,30 @@ public class SupplierServiceImpl implements SupplierService {
         this.supplierRepository = supplierRepository;
     }
 
+    /* ================= CREATE ================= */
+
     @Override
     public SupplierResponse create(SupplierRequest request) {
-        
-        if (StringUtils.hasText(request.getCode()) && supplierRepository.existsByCode(request.getCode())) {
+
+        UUID shopId = request.getShopId(); // ✅ lấy từ FE
+
+        if (StringUtils.hasText(request.getCode()) &&
+                supplierRepository.existsByCodeAndShopId(request.getCode(), shopId)) {
             throw new DataConflictException("Supplier code already exists: " + request.getCode());
         }
 
-        
-        if (StringUtils.hasText(request.getEmail()) && supplierRepository.existsByEmail(request.getEmail())) {
+        if (StringUtils.hasText(request.getEmail()) &&
+                supplierRepository.existsByEmailAndShopId(request.getEmail(), shopId)) {
             throw new DataConflictException("Email already exists: " + request.getEmail());
         }
 
-        
-        if (StringUtils.hasText(request.getPhoneNumber()) && supplierRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+        if (StringUtils.hasText(request.getPhoneNumber()) &&
+                supplierRepository.existsByPhoneNumberAndShopId(request.getPhoneNumber(), shopId)) {
             throw new DataConflictException("Phone number already exists: " + request.getPhoneNumber());
         }
 
-        
-        if (StringUtils.hasText(request.getTaxCode()) && supplierRepository.existsByTaxCode(request.getTaxCode())) {
+        if (StringUtils.hasText(request.getTaxCode()) &&
+                supplierRepository.existsByTaxCodeAndShopId(request.getTaxCode(), shopId)) {
             throw new DataConflictException("Tax code already exists: " + request.getTaxCode());
         }
 
@@ -57,6 +62,7 @@ public class SupplierServiceImpl implements SupplierService {
                 .email(request.getEmail())
                 .website(request.getWebsite())
                 .taxCode(request.getTaxCode())
+                .shopId(shopId) // ✅ giống product
                 .build();
 
         supplier.setCreatedBy(request.getCreatedBy());
@@ -66,34 +72,48 @@ public class SupplierServiceImpl implements SupplierService {
         return toResponse(supplier);
     }
 
+    /* ================= UPDATE ================= */
+
     @Override
     public SupplierResponse update(UUID id, SupplierRequest request) {
+
         Supplier supplier = supplierRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Supplier not found with id: " + id));
 
-        
-        if (StringUtils.hasText(request.getCode()) && !request.getCode().equals(supplier.getCode())) {
-            if (supplierRepository.existsByCode(request.getCode())) {
+        UUID shopId = request.getShopId();
+
+        if (!shopId.equals(supplier.getShopId())) {
+            throw new EntityNotFoundException("Supplier not found in your shop");
+        }
+
+        if (StringUtils.hasText(request.getCode()) &&
+                !request.getCode().equals(supplier.getCode())) {
+
+            if (supplierRepository.existsByCodeAndShopId(request.getCode(), shopId)) {
                 throw new DataConflictException("Supplier code already exists: " + request.getCode());
             }
         }
 
-        
-        if (StringUtils.hasText(request.getEmail()) && !request.getEmail().equals(supplier.getEmail())) {
-            if (supplierRepository.existsByEmail(request.getEmail())) {
+        if (StringUtils.hasText(request.getEmail()) &&
+                !request.getEmail().equals(supplier.getEmail())) {
+
+            if (supplierRepository.existsByEmailAndShopId(request.getEmail(), shopId)) {
                 throw new DataConflictException("Email already exists: " + request.getEmail());
             }
         }
 
-        
-        if (StringUtils.hasText(request.getPhoneNumber()) && !request.getPhoneNumber().equals(supplier.getPhoneNumber())) {
-            if (supplierRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+        if (StringUtils.hasText(request.getPhoneNumber()) &&
+                !request.getPhoneNumber().equals(supplier.getPhoneNumber())) {
+
+            if (supplierRepository.existsByPhoneNumberAndShopId(request.getPhoneNumber(), shopId)) {
                 throw new DataConflictException("Phone number already exists: " + request.getPhoneNumber());
             }
         }
 
-        if (StringUtils.hasText(request.getTaxCode()) && !request.getTaxCode().equals(supplier.getTaxCode())) {
-            if (supplierRepository.existsByTaxCode(request.getTaxCode())) {
+        if (StringUtils.hasText(request.getTaxCode()) &&
+                !request.getTaxCode().equals(supplier.getTaxCode())) {
+
+            if (supplierRepository.existsByTaxCodeAndShopId(request.getTaxCode(), shopId)) {
                 throw new DataConflictException("Tax code already exists: " + request.getTaxCode());
             }
         }
@@ -105,10 +125,13 @@ public class SupplierServiceImpl implements SupplierService {
         supplier.setWebsite(request.getWebsite());
         supplier.setTaxCode(request.getTaxCode());
         supplier.setUpdatedBy(request.getUpdatedBy());
+        supplier.setShopId(shopId); // giống product
 
         supplier = supplierRepository.save(supplier);
         return toResponse(supplier);
     }
+
+    /* ================= GET ================= */
 
     @Override
     @Transactional(readOnly = true)
@@ -118,9 +141,12 @@ public class SupplierServiceImpl implements SupplierService {
         return toResponse(supplier);
     }
 
+    /* ================= SEARCH ================= */
+
     @Override
     @Transactional(readOnly = true)
     public PageResponse<SupplierResponse> search(SupplierSearchCriteria criteria, Pageable pageable) {
+
         Page<Supplier> page = supplierRepository.findAll(
                 SupplierSpecification.withCriteria(criteria),
                 pageable);
@@ -129,6 +155,8 @@ public class SupplierServiceImpl implements SupplierService {
         return PageResponse.from(responsePage);
     }
 
+    /* ================= DELETE ================= */
+
     @Override
     public void delete(UUID id) {
         if (!supplierRepository.existsById(id)) {
@@ -136,6 +164,8 @@ public class SupplierServiceImpl implements SupplierService {
         }
         supplierRepository.deleteById(id);
     }
+
+    /* ================= MAPPER ================= */
 
     private SupplierResponse toResponse(Supplier supplier) {
         return SupplierResponse.builder()

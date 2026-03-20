@@ -13,6 +13,10 @@ public interface PurchaseOrderService {
 
     void addItem(UUID purchaseOrderId, PurchaseOrderItemRequest request);
 
+    void updateItem(UUID itemId, UpdatePurchaseOrderItemRequest request);
+
+    void deleteItem(UUID itemId);
+    
     void confirm(UUID purchaseOrderId);
 
     PurchaseOrderResponse getById(UUID id);

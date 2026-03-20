@@ -37,6 +37,21 @@ public class PurchaseOrderController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/items/{itemId}")
+    public ResponseEntity<Void> updateItem(
+            @PathVariable UUID itemId,
+            @RequestBody UpdatePurchaseOrderItemRequest request) {
+
+        purchaseOrderService.updateItem(itemId, request);
+        return ResponseEntity.ok().build();
+    }
+    @DeleteMapping("/items/{itemId}")
+    public ResponseEntity<Void> deleteItem(@PathVariable UUID itemId) {
+
+        purchaseOrderService.deleteItem(itemId);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/{id}/confirm")
     @PreAuthorize("hasAuthority('purchase_order:write')")
     public ResponseEntity<Void> confirm(@PathVariable UUID id) {

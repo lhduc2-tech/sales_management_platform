@@ -22,7 +22,7 @@ public class PurchaseOrderRequest {
 
     @Size(max = 255)
     private String note;
-
+    private UUID shopId;
     private String createdBy;
     private String updatedBy;
 }
