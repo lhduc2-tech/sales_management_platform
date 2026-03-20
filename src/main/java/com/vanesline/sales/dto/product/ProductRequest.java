@@ -20,7 +20,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ProductRequest {
 
-    @NotBlank(message = "Code is required")
     @Size(max = 255)
     private String code;
 
@@ -43,4 +42,10 @@ public class ProductRequest {
     private String updatedBy;
 
     private UUID categoryId;
+
+    @Size(max = 255)
+    private String description;
+
+    @Size(max = 255)
+    private String imgUrl;
 }

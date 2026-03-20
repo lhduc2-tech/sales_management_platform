@@ -36,16 +36,22 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse create(ProductRequest request) {
-        if (StringUtils.hasText(request.getCode()) && productRepository.existsByCode(request.getCode())) {
-            throw new DataConflictException("Product code already exists: " + request.getCode());
+        String code = request.getCode();
+        if (!StringUtils.hasText(code)) {
+            Integer maxCode = productRepository.findMaxCodeNumberByShopId(request.getShopId()).orElse(0);
+            code = String.format("SP%03d", maxCode + 1);
+        } else if (productRepository.existsByCode(code)) {
+            throw new DataConflictException("Product code already exists: " + code);
         }
 
         Product product = Product.builder()
-                .code(request.getCode())
+                .code(code)
                 .name(request.getName())
                 .price(request.getPrice())
                 .shopId(request.getShopId())
                 .categoryId(request.getCategoryId())
+                .description(request.getDescription())
+                .imgUrl(request.getImgUrl())
                 .build();
 
         product.setCreatedBy(request.getCreatedBy());
@@ -72,6 +78,8 @@ public class ProductServiceImpl implements ProductService {
         product.setUpdatedBy(request.getUpdatedBy());
         product.setShopId(request.getShopId());
         product.setCategoryId(request.getCategoryId());
+        product.setDescription(request.getDescription());
+        product.setImgUrl(request.getImgUrl());
 
         product = productRepository.save(product);
         return toResponse(product);
@@ -88,7 +96,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllByShopId(UUID shopId) {
-        return productRepository.findByShopId(shopId).stream()
+        return productRepository.findByShopIdOrderByUpdatedAtDesc(shopId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -130,6 +138,8 @@ public class ProductServiceImpl implements ProductService {
                 .price(product.getPrice())
                 .categoryId(product.getCategoryId())
                 .categoryName(categoryName)
+                .description(product.getDescription())
+                .imgUrl(product.getImgUrl())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .createdBy(product.getCreatedBy())

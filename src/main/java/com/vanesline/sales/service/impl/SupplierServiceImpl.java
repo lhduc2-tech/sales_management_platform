@@ -62,7 +62,7 @@ public class SupplierServiceImpl implements SupplierService {
                 .email(request.getEmail())
                 .website(request.getWebsite())
                 .taxCode(request.getTaxCode())
-                .shopId(shopId) // ✅ giống product
+                .shopId(request.getShopId())
                 .build();
 
         supplier.setCreatedBy(request.getCreatedBy());
@@ -124,6 +124,7 @@ public class SupplierServiceImpl implements SupplierService {
         supplier.setEmail(request.getEmail());
         supplier.setWebsite(request.getWebsite());
         supplier.setTaxCode(request.getTaxCode());
+        supplier.setShopId(request.getShopId());
         supplier.setUpdatedBy(request.getUpdatedBy());
         supplier.setShopId(shopId); // giống product
 
@@ -180,6 +181,7 @@ public class SupplierServiceImpl implements SupplierService {
                 .updatedAt(supplier.getUpdatedAt())
                 .createdBy(supplier.getCreatedBy())
                 .updatedBy(supplier.getUpdatedBy())
+                .shopId(supplier.getShopId())
                 .build();
     }
 }

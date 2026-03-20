@@ -24,17 +24,23 @@ public class Product extends BaseEntity {
     @Column(name = "shop_id")
     private UUID shopId;
 
-    @Column(name = "code", nullable = false, unique = true)
+    @Column(name = "code")
     private String code;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "price", nullable = false)
+    @Column(name = "price")
     private BigDecimal price;
 
-    @Column (name = "category_id")
+    @Column(name = "category_id")
     private UUID categoryId;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "img_url")
+    private String imgUrl;
 
     @Override
     protected void onCreate() {

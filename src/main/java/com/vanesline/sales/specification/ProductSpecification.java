@@ -27,10 +27,21 @@ public class ProductSpecification {
                         "%" + criteria.getName().toLowerCase() + "%"));
             }
 
-            if (StringUtils.hasText(criteria.getCategoryName())) {
+            if (StringUtils.hasText(criteria.getDescription())) {
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("category_name")),
-                        "%" + criteria.getName().toLowerCase() + "%"));
+                        criteriaBuilder.lower(root.get("description")),
+                        "%" + criteria.getDescription().toLowerCase() + "%"));
+            }
+
+            if (StringUtils.hasText(criteria.getSearchQuery())) {
+                String queryValue = "%" + criteria.getSearchQuery().toLowerCase() + "%";
+                Predicate codeMatch = criteriaBuilder.like(criteriaBuilder.lower(root.get("code")), queryValue);
+                Predicate nameMatch = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), queryValue);
+                predicates.add(criteriaBuilder.or(codeMatch, nameMatch));
+            }
+
+            if (criteria.getShopId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("shopId"), criteria.getShopId()));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
