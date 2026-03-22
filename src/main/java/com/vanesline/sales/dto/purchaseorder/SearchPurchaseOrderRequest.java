@@ -16,7 +16,11 @@ import java.util.UUID;
 @AllArgsConstructor
 public class SearchPurchaseOrderRequest extends BaseRequest {
 
+    private UUID shopId;
+
     private UUID supplierId;
+
+    private String supplierName;
     
     private String status;
 

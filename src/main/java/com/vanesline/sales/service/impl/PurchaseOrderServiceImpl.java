@@ -9,7 +9,9 @@ import com.vanesline.sales.repository.*;
 import com.vanesline.sales.service.contract.InventoryService;
 import com.vanesline.sales.service.contract.PurchaseOrderService;
 import com.vanesline.sales.service.contract.StockMovementService;
+import com.vanesline.sales.specification.PurchaseOrderSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -146,7 +148,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     @Transactional(readOnly = true)
     public PageResponse<PurchaseOrderResponse> search(SearchPurchaseOrderRequest request, Pageable pageable) {
 
-        Page<PurchaseOrder> page = poRepo.findAll(pageable);
+        Specification<PurchaseOrder> spec = PurchaseOrderSpecification.withCriteria(request);
+        Page<PurchaseOrder> page = poRepo.findAll(spec, pageable);
 
         Page<PurchaseOrderResponse> responsePage = page.map(po -> {
             List<PurchaseOrderItem> items = itemRepo.findByPurchaseOrderId(po.getId());
