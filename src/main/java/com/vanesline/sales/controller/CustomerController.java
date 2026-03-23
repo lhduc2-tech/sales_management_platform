@@ -69,6 +69,7 @@ public class CustomerController {
                 .fullName(request.getFullName())
                 .phoneNumber(request.getPhoneNumber())
                 .email(request.getEmail())
+                .shopId(request.getShopId())
                 .build();
 
         Sort sort = request.getSortDir().equalsIgnoreCase("asc")

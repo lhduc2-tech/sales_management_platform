@@ -18,4 +18,6 @@ public class SearchCustomerCriteria {
     private String phoneNumber;
 
     private String email;
+
+    private UUID shopId;
 }

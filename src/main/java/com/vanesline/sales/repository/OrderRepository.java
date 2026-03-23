@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import java.math.BigDecimal;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecificationExecutor<Order> {
@@ -63,4 +64,19 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
             @Param("orderDate") OffsetDateTime orderDate,
             @Param("shopId") UUID shopId,
             Pageable pageable);
+
+    @Query("SELECT SUM(o.price) FROM Order o WHERE o.shopId = :shopId AND o.paymentState = 'PAID' AND o.updatedAt >= :startDate AND o.updatedAt <= :endDate")
+    BigDecimal calculateRevenue(@Param("shopId") UUID shopId, @Param("startDate") OffsetDateTime startDate, @Param("endDate") OffsetDateTime endDate);
+
+    @Query("SELECT SUM(o.price) FROM Order o WHERE o.shopId = :shopId AND o.paymentState = 'PAID'")
+    BigDecimal calculateTotalRevenue(@Param("shopId") UUID shopId);
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.shopId = :shopId AND o.updatedAt >= :startDate AND o.updatedAt <= :endDate")
+    Integer countOrdersInPeriod(@Param("shopId") UUID shopId, @Param("startDate") OffsetDateTime startDate, @Param("endDate") OffsetDateTime endDate);
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.shopId = :shopId AND o.processState = :state AND o.updatedAt >= :startDate AND o.updatedAt <= :endDate")
+    Integer countOrdersByProcessStateInPeriod(@Param("shopId") UUID shopId, @Param("state") String state, @Param("startDate") OffsetDateTime startDate, @Param("endDate") OffsetDateTime endDate);
+
+    @Query("SELECT AVG(o.price) FROM Order o WHERE o.shopId = :shopId AND o.updatedAt >= :startDate AND o.updatedAt <= :endDate")
+    BigDecimal calculateAverageOrderValueInPeriod(@Param("shopId") UUID shopId, @Param("startDate") OffsetDateTime startDate, @Param("endDate") OffsetDateTime endDate);
 }

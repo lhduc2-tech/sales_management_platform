@@ -35,4 +35,25 @@ public interface ProductRepository
                 ON p.category_id = c.id
 """, nativeQuery = true)
     public void findCategoryName(UUID categoryId);
+
+    @Query("SELECT p FROM Product p JOIN Inventory i ON p.id = i.productId WHERE i.shopId = :shopId AND i.quantity < :quantity")
+    List<Product> findProductsWithLowStock(@Param("shopId") UUID shopId, @Param("quantity") Integer quantity);
+
+    @Query("SELECT p FROM Product p WHERE p.shopId = :shopId AND NOT EXISTS (" +
+           "  SELECT 1 FROM OrderItem oi JOIN Order o ON oi.orderId = o.id " +
+           "  WHERE oi.productId = p.id AND o.paymentState = 'PAID' AND o.updatedAt >= :startDate AND o.updatedAt <= :endDate" +
+           ")")
+    org.springframework.data.domain.Page<Product> findUnsoldProducts(
+            @Param("shopId") java.util.UUID shopId,
+            @Param("startDate") java.time.OffsetDateTime startDate,
+            @Param("endDate") java.time.OffsetDateTime endDate,
+            org.springframework.data.domain.Pageable pageable);
+
+    @Query("SELECT p FROM Product p WHERE p.shopId = :shopId AND NOT EXISTS (" +
+           "  SELECT 1 FROM OrderItem oi JOIN Order o ON oi.orderId = o.id " +
+           "  WHERE oi.productId = p.id AND o.paymentState = 'PAID'" +
+           ")")
+    org.springframework.data.domain.Page<Product> findUnsoldProductsAllTime(
+            @Param("shopId") java.util.UUID shopId,
+            org.springframework.data.domain.Pageable pageable);
 }
