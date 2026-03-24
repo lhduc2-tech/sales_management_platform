@@ -27,6 +27,13 @@ public interface InventoryRepository
            "FROM Inventory i " +
            "JOIN Product p ON i.productId = p.id " +
            "LEFT JOIN ProductCategory c ON p.categoryId = c.id " +
-           "WHERE i.shopId = :shopId")
-    Page<InventoryItemDto> getInventoryForShop(@Param("shopId") UUID shopId, Pageable pageable);
+           "WHERE i.shopId = :shopId " +
+           "AND (:query IS NULL OR :query = '' " +
+           "     OR LOWER(p.code) LIKE LOWER(CONCAT('%', :query, '%')) " +
+           "     OR LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) " +
+           "     OR LOWER(c.categoryName) LIKE LOWER(CONCAT('%', :query, '%')))")
+    Page<InventoryItemDto> getInventoryForShop(
+            @Param("shopId") UUID shopId, 
+            @Param("query") String query, 
+            Pageable pageable);
 }

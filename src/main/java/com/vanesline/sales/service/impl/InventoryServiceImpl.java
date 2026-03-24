@@ -3,6 +3,7 @@ package com.vanesline.sales.service.impl;
 import com.vanesline.sales.dto.common.PageResponse;
 import com.vanesline.sales.dto.inventory.InventoryResponse;
 import com.vanesline.sales.dto.inventory.SearchInventoryRequest;
+import com.vanesline.sales.dto.inventory.SearchInventoryItemRequest;
 import com.vanesline.sales.dto.inventory.InventoryItemDto;
 import com.vanesline.sales.entity.Inventory;
 import com.vanesline.sales.entity.Product;
@@ -14,7 +15,9 @@ import com.vanesline.sales.repository.UserRepository;
 import com.vanesline.sales.service.contract.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,10 +53,21 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<InventoryItemDto> getInventoryForShop(String username, Pageable pageable) {
+    public PageResponse<InventoryItemDto> getInventoryForShop(String username, SearchInventoryItemRequest request) {
         User user = userRepository.findByUsernameWithRolesAndPermissions(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
-        Page<InventoryItemDto> page = inventoryRepository.getInventoryForShop(user.getShopId(), pageable);
+        
+        Sort sort = request.getSortDir().equalsIgnoreCase("asc")
+                ? Sort.by(request.getSortBy()).ascending()
+                : Sort.by(request.getSortBy()).descending();
+        
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+        
+        Page<InventoryItemDto> page = inventoryRepository.getInventoryForShop(
+                user.getShopId(), 
+                request.getSearchQuery(), 
+                pageable);
+        
         return PageResponse.from(page);
     }
 
