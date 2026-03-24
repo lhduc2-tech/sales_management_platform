@@ -3,11 +3,14 @@ package com.vanesline.sales.controller;
 import com.vanesline.sales.dto.common.PageResponse;
 import com.vanesline.sales.dto.inventory.InventoryResponse;
 import com.vanesline.sales.dto.inventory.SearchInventoryRequest;
+import com.vanesline.sales.dto.inventory.InventoryItemDto;
 import com.vanesline.sales.service.contract.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -43,6 +46,28 @@ public class InventoryController {
 
         return ResponseEntity.ok(
                 inventoryService.getByProductAndShop(productId, shopId)
+        );
+    }
+
+    @GetMapping("/shop")
+    @PreAuthorize("hasAuthority('inventory:read')")
+    public ResponseEntity<PageResponse<InventoryItemDto>> getInventoryForShop(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        Sort sort = sortDir.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        return ResponseEntity.ok(
+                inventoryService.getInventoryForShop(username, pageable)
         );
     }
 }

@@ -3,11 +3,14 @@ package com.vanesline.sales.service.impl;
 import com.vanesline.sales.dto.common.PageResponse;
 import com.vanesline.sales.dto.inventory.InventoryResponse;
 import com.vanesline.sales.dto.inventory.SearchInventoryRequest;
+import com.vanesline.sales.dto.inventory.InventoryItemDto;
 import com.vanesline.sales.entity.Inventory;
 import com.vanesline.sales.entity.Product;
+import com.vanesline.sales.entity.User;
 import com.vanesline.sales.exception.EntityNotFoundException;
 import com.vanesline.sales.repository.InventoryRepository;
 import com.vanesline.sales.repository.ProductRepository;
+import com.vanesline.sales.repository.UserRepository;
 import com.vanesline.sales.service.contract.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +27,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -42,6 +46,15 @@ public class InventoryServiceImpl implements InventoryService {
         Page<Inventory> page = inventoryRepository.findAll(pageable);
 
         return PageResponse.from(page.map(this::toResponse));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<InventoryItemDto> getInventoryForShop(String username, Pageable pageable) {
+        User user = userRepository.findByUsernameWithRolesAndPermissions(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
+        Page<InventoryItemDto> page = inventoryRepository.getInventoryForShop(user.getShopId(), pageable);
+        return PageResponse.from(page);
     }
 
     @Override
