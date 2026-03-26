@@ -1,6 +1,7 @@
 package com.vanesline.sales.service.impl;
 
 import com.vanesline.sales.dto.common.PageResponse;
+import com.vanesline.sales.dto.order.InvoiceExportResponse;
 import com.vanesline.sales.dto.order.OrderRequest;
 import com.vanesline.sales.dto.order.OrderResponse;
 import com.vanesline.sales.dto.order.OrderSearchProjection;
@@ -8,9 +9,13 @@ import com.vanesline.sales.dto.order.SearchOrderCriteria;
 import com.vanesline.sales.entity.Customer;
 import com.vanesline.sales.entity.Order;
 import com.vanesline.sales.entity.OrderItem;
+import com.vanesline.sales.entity.Product;
+import com.vanesline.sales.entity.Shop;
 import com.vanesline.sales.repository.CustomerRepository;
 import com.vanesline.sales.repository.OrderItemRepository;
 import com.vanesline.sales.repository.OrderRepository;
+import com.vanesline.sales.repository.ProductRepository;
+import com.vanesline.sales.repository.ShopRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,6 +49,12 @@ class OrderServiceImplTest {
 
     @Mock
     private CustomerRepository customerRepository;
+
+    @Mock
+    private ShopRepository shopRepository;
+
+    @Mock
+    private ProductRepository productRepository;
 
     @InjectMocks
     private OrderServiceImpl orderService;
@@ -259,5 +270,58 @@ class OrderServiceImplTest {
         assertNotNull(response);
         assertEquals(BigDecimal.valueOf(20000), response.getPrice());
         verify(orderRepository, times(2)).save(any(Order.class));
+    }
+
+    @Test
+    void exportInvoice_Success() {
+        UUID productId = UUID.randomUUID();
+        order.setPaymentMethod("CASH");
+        order.setDeliveryService("INTERNAL");
+        order.setDescription("Invoice note");
+
+        OrderItem orderItem = OrderItem.builder()
+                .orderId(orderId)
+                .productId(productId)
+                .quantity(2)
+                .unitPrice(BigDecimal.valueOf(150000))
+                .totalPrice(BigDecimal.valueOf(300000))
+                .build();
+
+        Shop shop = Shop.builder()
+                .shopName("Shop ABC")
+                .address("123 Street")
+                .build();
+
+        Customer customer = Customer.builder()
+                .fullName("Customer A")
+                .phoneNumber("0123")
+                .address("456 Street")
+                .build();
+
+        Product product = Product.builder()
+                .id(productId)
+                .name("T-Shirt")
+                .code("SKU-001")
+                .build();
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(orderItemRepository.findByOrderId(orderId)).thenReturn(List.of(orderItem));
+        when(shopRepository.findById(shopId)).thenReturn(Optional.of(shop));
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
+        when(productRepository.findAllById(any())).thenReturn(List.of(product));
+
+        InvoiceExportResponse response = orderService.exportInvoice(orderId);
+
+        assertNotNull(response);
+        assertEquals("INV-ORD-123456", response.getInvoiceNumber());
+        assertEquals("ORD-123456", response.getOrderName());
+        assertEquals(BigDecimal.valueOf(300000), response.getSubtotal());
+        assertEquals(BigDecimal.ZERO, response.getDiscountAmount());
+        assertEquals(BigDecimal.ZERO, response.getTaxAmount());
+        assertEquals(1, response.getOrderItems().size());
+        assertEquals("T-Shirt", response.getOrderItems().get(0).getProductName());
+        assertEquals("SKU-001", response.getOrderItems().get(0).getProductSku());
+        assertEquals("Shop ABC", response.getShop().getName());
+        assertEquals("Customer A", response.getCustomer().getName());
     }
 }

@@ -1,16 +1,22 @@
 package com.vanesline.sales.service.impl;
 
 import com.vanesline.sales.dto.common.PageResponse;
+import com.vanesline.sales.dto.order.InvoiceExportResponse;
 import com.vanesline.sales.dto.order.OrderRequest;
 import com.vanesline.sales.dto.order.OrderResponse;
 import com.vanesline.sales.dto.order.OrderSearchProjection;
 import com.vanesline.sales.dto.order.SearchOrderCriteria;
 import com.vanesline.sales.dto.orderitem.OrderItemResponse;
+import com.vanesline.sales.entity.Customer;
 import com.vanesline.sales.entity.Order;
 import com.vanesline.sales.entity.OrderItem;
+import com.vanesline.sales.entity.Product;
+import com.vanesline.sales.entity.Shop;
 import com.vanesline.sales.repository.CustomerRepository;
 import com.vanesline.sales.repository.OrderItemRepository;
 import com.vanesline.sales.repository.OrderRepository;
+import com.vanesline.sales.repository.ProductRepository;
+import com.vanesline.sales.repository.ShopRepository;
 import com.vanesline.sales.service.contract.OrderService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
@@ -27,7 +33,9 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
 @Service
 @Transactional
@@ -37,11 +45,19 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final CustomerRepository customerRepository;
+    private final ShopRepository shopRepository;
+    private final ProductRepository productRepository;
 
-    public OrderServiceImpl (OrderRepository orderRepository, OrderItemRepository orderItemRepository, CustomerRepository customerRepository){
+    public OrderServiceImpl (OrderRepository orderRepository,
+                             OrderItemRepository orderItemRepository,
+                             CustomerRepository customerRepository,
+                             ShopRepository shopRepository,
+                             ProductRepository productRepository){
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.customerRepository = customerRepository;
+        this.shopRepository = shopRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -130,6 +146,71 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public InvoiceExportResponse exportInvoice(UUID id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + id));
+
+        List<OrderItem> orderItems = orderItemRepository.findByOrderId(order.getId());
+        Map<UUID, Product> productsById = productRepository.findAllById(
+                        orderItems.stream().map(OrderItem::getProductId).distinct().toList())
+                .stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        List<InvoiceExportResponse.OrderItemInfo> invoiceItems = orderItems.stream()
+                .map(item -> {
+                    Product product = productsById.get(item.getProductId());
+                    return InvoiceExportResponse.OrderItemInfo.builder()
+                            .productName(product != null ? product.getName() : null)
+                            .productSku(product != null ? product.getCode() : null)
+                            .quantity(item.getQuantity())
+                            .unitPrice(item.getUnitPrice())
+                            .totalPrice(item.getTotalPrice())
+                            .build();
+                })
+                .toList();
+
+        BigDecimal subtotal = invoiceItems.stream()
+                .map(InvoiceExportResponse.OrderItemInfo::getTotalPrice)
+                .filter(java.util.Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal discountAmount = BigDecimal.ZERO;
+        BigDecimal taxAmount = BigDecimal.ZERO;
+        BigDecimal price = order.getPrice() != null
+                ? order.getPrice()
+                : subtotal.subtract(discountAmount).add(taxAmount);
+
+        Shop shop = order.getShopId() != null ? shopRepository.findById(order.getShopId()).orElse(null) : null;
+        Customer customer = order.getCustomerId() != null ? customerRepository.findById(order.getCustomerId()).orElse(null) : null;
+
+        return InvoiceExportResponse.builder()
+                .invoiceNumber(buildInvoiceNumber(order))
+                .orderName(order.getOrderName())
+                .orderDate(order.getOrderDate() != null ? order.getOrderDate().toLocalDate() : null)
+                .shop(InvoiceExportResponse.ShopInfo.builder()
+                        .name(shop != null ? shop.getShopName() : null)
+                        .address(shop != null ? shop.getAddress() : null)
+                        .phone(null)
+                        .build())
+                .customer(InvoiceExportResponse.CustomerInfo.builder()
+                        .name(customer != null ? customer.getFullName() : null)
+                        .phone(customer != null ? customer.getPhoneNumber() : null)
+                        .address(customer != null ? customer.getAddress() : null)
+                        .build())
+                .orderItems(invoiceItems)
+                .subtotal(subtotal)
+                .discountAmount(discountAmount)
+                .taxAmount(taxAmount)
+                .price(price)
+                .paymentMethod(order.getPaymentMethod())
+                .paymentState(order.getPaymentState())
+                .deliveryService(order.getDeliveryService())
+                .description(order.getDescription())
+                .build();
+    }
+
+    @Override
     @Transactional (readOnly = true)
     public PageResponse<OrderResponse> search(SearchOrderCriteria criteria, Pageable pageable) {
         Page<OrderSearchProjection> page = orderRepository.searchOrders(
@@ -165,7 +246,7 @@ public class OrderServiceImpl implements OrderService {
         String address = null;
 
         if (order.getCustomerId() != null) {
-            com.vanesline.sales.entity.Customer customer = customerRepository.findById(order.getCustomerId()).orElse(null);
+            Customer customer = customerRepository.findById(order.getCustomerId()).orElse(null);
             if (customer != null) {
                 customerName = customer.getFullName();
                 phoneNumber = customer.getPhoneNumber();
@@ -244,5 +325,14 @@ public class OrderServiceImpl implements OrderService {
                 .createdBy(orderItem.getCreatedBy())
                 .updatedBy(orderItem.getUpdatedBy())
                 .build();
+    }
+
+    private String buildInvoiceNumber(Order order) {
+        if (order.getOrderName() == null || order.getOrderName().isBlank()) {
+            return "INV-" + order.getId();
+        }
+        return order.getOrderName().startsWith("INV-")
+                ? order.getOrderName()
+                : "INV-" + order.getOrderName();
     }
 }

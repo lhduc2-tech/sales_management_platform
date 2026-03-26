@@ -1,6 +1,7 @@
 package com.vanesline.sales.controller;
 
 import com.vanesline.sales.dto.common.PageResponse;
+import com.vanesline.sales.dto.order.InvoiceExportResponse;
 import com.vanesline.sales.dto.order.OrderRequest;
 import com.vanesline.sales.dto.order.OrderResponse;
 import com.vanesline.sales.dto.order.SearchOrderCriteria;
@@ -46,6 +47,13 @@ public class OrderController {
     @PreAuthorize("hasAuthority('order:read')")
     public ResponseEntity<OrderResponse> getById(@PathVariable UUID id) {
         OrderResponse response = orderService.getById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/invoice")
+    @PreAuthorize("hasAuthority('order:read')")
+    public ResponseEntity<InvoiceExportResponse> exportInvoice(@PathVariable UUID id) {
+        InvoiceExportResponse response = orderService.exportInvoice(id);
         return ResponseEntity.ok(response);
     }
 
