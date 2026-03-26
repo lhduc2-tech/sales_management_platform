@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Service
 public class ActivationServiceImpl implements ActivationService {
 
-        private static final String SALES_ROLE_CODE = "SALES";
+        private static final String STAFF_ROLE_CODE = "STAFF";
 
         private final ActivationTokenRepository activationTokenRepository;
         private final UserRepository userRepository;
@@ -109,6 +109,53 @@ public class ActivationServiceImpl implements ActivationService {
 
         @Override
         @Transactional
+        public void activateAccount(String token) {
+                // Find and validate token
+                ActivationToken activationToken = activationTokenRepository.findByTokenAndUsedFalse(token)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Token không hợp lệ hoặc đã được sử dụng"));
+
+                if (activationToken.isExpired()) {
+                        throw new IllegalArgumentException("Token đã hết hạn");
+                }
+
+                // Get user
+                User user = userRepository.findById(activationToken.getUserId())
+                                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+                // Update user status
+                user.setStatus("ACTIVE");
+
+                // Activate staff if exists
+                staffRepository.findByUserId(user.getId()).ifPresent(staff -> {
+                        staff.setStatus("ACTIVE");
+                        staffRepository.save(staff);
+                });
+
+                // Assign STAFF role if not already assigned
+                boolean hasStaffRole = user.getUserRoles().stream()
+                                .anyMatch(ur -> ur.getRole().getCode().equals(STAFF_ROLE_CODE));
+
+                if (!hasStaffRole) {
+                        Role staffRole = roleRepository.findByCode(STAFF_ROLE_CODE)
+                                        .orElseThrow(() -> new RuntimeException(
+                                                        "Role " + STAFF_ROLE_CODE + " not found. Please ensure roles are properly seeded."));
+
+                        UserRole userRole = UserRole.builder()
+                                        .id(new UserRole.UserRoleId(user.getId(), staffRole.getId()))
+                                        .user(user)
+                                        .role(staffRole)
+                                        .assignedAt(OffsetDateTime.now())
+                                        .assignedBy("SYSTEM")
+                                        .build();
+                        user.getUserRoles().add(userRole);
+                }
+
+                userRepository.save(user);
+        }
+
+        @Override
+        @Transactional
         public LoginResponse activateAccountWithPassword(SetPasswordRequest request) {
                 // Validate passwords match
                 if (!request.getPassword().equals(request.getConfirmPassword())) {
@@ -138,20 +185,25 @@ public class ActivationServiceImpl implements ActivationService {
                         staffRepository.save(staff);
                 });
 
-                // Assign SALES role
-                Role salesRole = roleRepository.findByCode(SALES_ROLE_CODE)
-                                .orElseThrow(
-                                                () -> new RuntimeException(
-                                                                "Role SALES not found. Please ensure roles are properly seeded."));
+                // Assign STAFF role if not already assigned
+                boolean hasStaffRole = user.getUserRoles().stream()
+                                .anyMatch(ur -> ur.getRole().getCode().equals(STAFF_ROLE_CODE));
 
-                UserRole userRole = UserRole.builder()
-                                .id(new UserRole.UserRoleId(user.getId(), salesRole.getId()))
-                                .user(user)
-                                .role(salesRole)
-                                .assignedAt(OffsetDateTime.now())
-                                .assignedBy("SYSTEM")
-                                .build();
-                user.getUserRoles().add(userRole);
+                if (!hasStaffRole) {
+                        Role staffRole = roleRepository.findByCode(STAFF_ROLE_CODE)
+                                        .orElseThrow(
+                                                        () -> new RuntimeException(
+                                                                        "Role " + STAFF_ROLE_CODE + " not found. Please ensure roles are properly seeded."));
+
+                        UserRole userRole = UserRole.builder()
+                                        .id(new UserRole.UserRoleId(user.getId(), staffRole.getId()))
+                                        .user(user)
+                                        .role(staffRole)
+                                        .assignedAt(OffsetDateTime.now())
+                                        .assignedBy("SYSTEM")
+                                        .build();
+                        user.getUserRoles().add(userRole);
+                }
 
                 userRepository.save(user);
 

@@ -11,6 +11,8 @@ public interface ActivationService {
     String createActivationToken(UUID userId);
 
     ActivationResponse validateToken(String token);
+    
+    void activateAccount(String token);
 
     LoginResponse activateAccountWithPassword(SetPasswordRequest request);
 }

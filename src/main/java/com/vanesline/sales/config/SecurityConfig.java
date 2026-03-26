@@ -50,7 +50,7 @@ public class SecurityConfig {
                         // Public endpoints - no authentication required
                         .requestMatchers(publicBasePath + "/**").permitAll()
                         // Health check and actuator
-                        .requestMatchers("/actuator/**", "/health", "/error").permitAll()
+                        .requestMatchers("/actuator/**", "/health", "/error", "/activation-success.html", "/activation-error.html", "/set-password.html").permitAll()
                         // Private endpoints - require authentication
                         .requestMatchers(privateBasePath + "/**").authenticated()
                         // All other requests require authentication
