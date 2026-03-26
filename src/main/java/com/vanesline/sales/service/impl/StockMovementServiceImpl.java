@@ -10,6 +10,8 @@ import com.vanesline.sales.repository.ProductRepository;
 import com.vanesline.sales.repository.StockMovementRepository;
 import com.vanesline.sales.service.contract.StockMovementService;
 import lombok.RequiredArgsConstructor;
+import com.vanesline.sales.specification.StockMovementSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,8 @@ public class StockMovementServiceImpl implements StockMovementService {
 
     @Override
     public PageResponse<StockMovementResponse> search(SearchStockMovementRequest request, Pageable pageable) {
-        Page<StockMovement> page = stockMovementRepository.findAll(pageable);
+        Specification<StockMovement> spec = StockMovementSpecification.withCriteria(request);
+        Page<StockMovement> page = stockMovementRepository.findAll(spec, pageable);
         return PageResponse.from(page.map(this::toResponse));
     }
 

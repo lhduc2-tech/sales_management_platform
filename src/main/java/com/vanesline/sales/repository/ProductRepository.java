@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,17 +45,17 @@ public interface ProductRepository
            "  SELECT 1 FROM OrderItem oi JOIN Order o ON oi.orderId = o.id " +
            "  WHERE oi.productId = p.id AND o.paymentState = 'PAID' AND o.updatedAt >= :startDate AND o.updatedAt <= :endDate" +
            ")")
-    org.springframework.data.domain.Page<Product> findUnsoldProducts(
+    Page<Product> findUnsoldProducts(
             @Param("shopId") java.util.UUID shopId,
             @Param("startDate") java.time.OffsetDateTime startDate,
             @Param("endDate") java.time.OffsetDateTime endDate,
-            org.springframework.data.domain.Pageable pageable);
+            Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE p.shopId = :shopId AND NOT EXISTS (" +
            "  SELECT 1 FROM OrderItem oi JOIN Order o ON oi.orderId = o.id " +
            "  WHERE oi.productId = p.id AND o.paymentState = 'PAID'" +
            ")")
-    org.springframework.data.domain.Page<Product> findUnsoldProductsAllTime(
+    Page<Product> findUnsoldProductsAllTime(
             @Param("shopId") java.util.UUID shopId,
-            org.springframework.data.domain.Pageable pageable);
+            Pageable pageable);
 }
