@@ -20,7 +20,6 @@ public class SupplierRequest {
     @Size(max = 255)
     private String supplierName;
 
-    @NotBlank(message = "Code is required")
     @Size(max = 50)
     private String code;
 

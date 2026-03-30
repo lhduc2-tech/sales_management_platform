@@ -35,9 +35,13 @@ public class SupplierServiceImpl implements SupplierService {
 
         UUID shopId = request.getShopId(); // ✅ lấy từ FE
 
-        if (StringUtils.hasText(request.getCode()) &&
-                supplierRepository.existsByCodeAndShopId(request.getCode(), shopId)) {
-            throw new DataConflictException("Supplier code already exists: " + request.getCode());
+        // Auto-generate code nếu không có
+        String code = request.getCode();
+        if (!StringUtils.hasText(code)) {
+            Integer maxCode = supplierRepository.findMaxCodeNumberByShopId(shopId).orElse(0);
+            code = String.format("NCC%03d", maxCode + 1);
+        } else if (supplierRepository.existsByCodeAndShopId(code, shopId)) {
+            throw new DataConflictException("Supplier code already exists: " + code);
         }
 
         if (StringUtils.hasText(request.getEmail()) &&
@@ -57,7 +61,7 @@ public class SupplierServiceImpl implements SupplierService {
 
         Supplier supplier = Supplier.builder()
                 .supplierName(request.getSupplierName())
-                .code(request.getCode())
+                .code(code)
                 .phoneNumber(request.getPhoneNumber())
                 .email(request.getEmail())
                 .website(request.getWebsite())

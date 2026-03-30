@@ -1,11 +1,15 @@
 package com.vanesline.sales.controller;
 
 import com.vanesline.sales.dto.User.AssignRolesRequest;
+import com.vanesline.sales.dto.User.UpdateUserRequest;
 import com.vanesline.sales.dto.User.UserResponse;
 import com.vanesline.sales.entity.Role;
 import com.vanesline.sales.entity.User;
 import com.vanesline.sales.repository.UserRepository;
 import com.vanesline.sales.service.contract.UserRoleService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,10 +27,12 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final UserRoleService userRoleService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserController(UserRepository userRepository, UserRoleService userRoleService) {
+    public UserController(UserRepository userRepository, UserRoleService userRoleService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userRoleService = userRoleService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping
@@ -45,6 +51,32 @@ public class UserController {
 
         return userRepository.findByUsernameWithRolesAndPermissions(username)
                 .map(user -> ResponseEntity.ok(toUserResponse(user)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/me")
+    @Transactional
+    public ResponseEntity<UserResponse> updateCurrentUser(@Valid @RequestBody UpdateUserRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        return userRepository.findByUsernameWithRolesAndPermissions(username)
+                .map(user -> {
+                    if (StringUtils.hasText(request.getFullName())) {
+                        user.setFullName(request.getFullName());
+                    }
+                    if (StringUtils.hasText(request.getEmail())) {
+                        user.setEmail(request.getEmail());
+                    }
+                    if (StringUtils.hasText(request.getPhoneNumber())) {
+                        user.setPhoneNumber(request.getPhoneNumber());
+                    }
+                    if (StringUtils.hasText(request.getPassword())) {
+                        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+                    }
+                    User saved = userRepository.save(user);
+                    return ResponseEntity.ok(toUserResponse(saved));
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -93,6 +125,7 @@ public class UserController {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .fullName(user.getFullName())
                 .phoneNumber(user.getPhoneNumber())
                 .status(user.getStatus())
                 .isSystem(user.getIsSystem())
