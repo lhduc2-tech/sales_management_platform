@@ -12,11 +12,15 @@ import com.vanesline.sales.entity.Order;
 import com.vanesline.sales.entity.OrderItem;
 import com.vanesline.sales.entity.Product;
 import com.vanesline.sales.entity.Shop;
+import com.vanesline.sales.entity.Inventory;
+import com.vanesline.sales.entity.StockMovement;
 import com.vanesline.sales.repository.CustomerRepository;
 import com.vanesline.sales.repository.OrderItemRepository;
 import com.vanesline.sales.repository.OrderRepository;
 import com.vanesline.sales.repository.ProductRepository;
 import com.vanesline.sales.repository.ShopRepository;
+import com.vanesline.sales.repository.InventoryRepository;
+import com.vanesline.sales.repository.StockMovementRepository;
 import com.vanesline.sales.service.contract.OrderService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
@@ -47,17 +51,23 @@ public class OrderServiceImpl implements OrderService {
     private final CustomerRepository customerRepository;
     private final ShopRepository shopRepository;
     private final ProductRepository productRepository;
+    private final InventoryRepository inventoryRepository;
+    private final StockMovementRepository stockMovementRepository;
 
     public OrderServiceImpl (OrderRepository orderRepository,
                              OrderItemRepository orderItemRepository,
                              CustomerRepository customerRepository,
                              ShopRepository shopRepository,
-                             ProductRepository productRepository){
+                             ProductRepository productRepository,
+                             InventoryRepository inventoryRepository,
+                             StockMovementRepository stockMovementRepository){
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.customerRepository = customerRepository;
         this.shopRepository = shopRepository;
         this.productRepository = productRepository;
+        this.inventoryRepository = inventoryRepository;
+        this.stockMovementRepository = stockMovementRepository;
     }
 
     @Override
@@ -81,6 +91,27 @@ public class OrderServiceImpl implements OrderService {
 
         order.setCreatedBy(request.getCreatedBy());
         order.setUpdatedBy(request.getUpdatedBy());
+
+        // Pre-check inventory
+        if (request.getOrderItems() != null && !request.getOrderItems().isEmpty()) {
+            for (com.vanesline.sales.dto.orderitem.OrderItemRequest itemReq : request.getOrderItems()) {
+                Inventory inventory = inventoryRepository
+                        .findByProductIdAndShopId(itemReq.getProductId(), request.getShopId())
+                        .orElseThrow(() -> {
+                            Product p = productRepository.findById(itemReq.getProductId()).orElse(null);
+                            String pName = (p != null) ? p.getName() : itemReq.getProductId().toString();
+                            return new IllegalArgumentException("Product '" + pName + "' is out of stock in inventory.");
+                        });
+
+                if (inventory.getQuantity() == null || inventory.getQuantity() < itemReq.getQuantity()) {
+                    Product p = productRepository.findById(itemReq.getProductId()).orElse(null);
+                    String pName = (p != null) ? p.getName() : itemReq.getProductId().toString();
+                    int currentStock = (inventory.getQuantity() != null) ? inventory.getQuantity() : 0;
+                    throw new IllegalArgumentException(String.format("Insufficient stock for product '%s'. (Available: %d, Requested: %d)",
+                            pName, currentStock, itemReq.getQuantity()));
+                }
+            }
+        }
 
         final Order savedOrder = orderRepository.save(order);
 
@@ -109,6 +140,26 @@ public class OrderServiceImpl implements OrderService {
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
                 savedOrder.setPrice(total);
                 orderRepository.save(savedOrder);
+            }
+
+            // Deduct stock and save stock movement
+            for (com.vanesline.sales.dto.orderitem.OrderItemRequest itemReq : request.getOrderItems()) {
+                Inventory inventory = inventoryRepository
+                        .findByProductIdAndShopId(itemReq.getProductId(), request.getShopId())
+                        .orElseThrow(() -> new EntityNotFoundException("Inventory not found"));
+
+                inventory.setQuantity(inventory.getQuantity() - itemReq.getQuantity());
+                inventoryRepository.save(inventory);
+
+                StockMovement movement = StockMovement.builder()
+                        .productId(itemReq.getProductId())
+                        .shopId(request.getShopId())
+                        .movementType("EXPORT")
+                        .quantity(-itemReq.getQuantity())
+                        .note("Order created: " + savedOrder.getOrderName())
+                        .build();
+                movement.setCreatedBy(request.getCreatedBy());
+                stockMovementRepository.save(movement);
             }
         }
 

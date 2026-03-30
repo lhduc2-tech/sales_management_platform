@@ -4,8 +4,10 @@ import com.vanesline.sales.dto.common.PageResponse;
 import com.vanesline.sales.dto.inventory.InventoryResponse;
 import com.vanesline.sales.dto.inventory.SearchInventoryRequest;
 import com.vanesline.sales.dto.inventory.SearchInventoryItemRequest;
+import com.vanesline.sales.dto.inventory.AdjustInventoryRequest;
 import com.vanesline.sales.dto.inventory.InventoryItemDto;
 import com.vanesline.sales.service.contract.InventoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
@@ -60,6 +62,19 @@ public class InventoryController {
 
         return ResponseEntity.ok(
                 inventoryService.getInventoryForShop(username, request)
+        );
+    }
+
+    @PutMapping("/{productId}/adjust")
+    public ResponseEntity<InventoryResponse> adjustStock(
+            @PathVariable UUID productId,
+            @Valid @RequestBody AdjustInventoryRequest request) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        return ResponseEntity.ok(
+                inventoryService.adjustStock(username, productId, request)
         );
     }
 }

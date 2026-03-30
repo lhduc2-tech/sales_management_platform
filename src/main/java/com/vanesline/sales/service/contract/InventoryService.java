@@ -20,4 +20,6 @@ public interface InventoryService {
     void increaseStock(UUID productId, UUID shopId, Integer quantity);
 
     void decreaseStock(UUID productId, UUID shopId, Integer quantity);
+
+    InventoryResponse adjustStock(String username, UUID productId, com.vanesline.sales.dto.inventory.AdjustInventoryRequest request);
 }

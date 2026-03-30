@@ -4,13 +4,16 @@ import com.vanesline.sales.dto.common.PageResponse;
 import com.vanesline.sales.dto.inventory.InventoryResponse;
 import com.vanesline.sales.dto.inventory.SearchInventoryRequest;
 import com.vanesline.sales.dto.inventory.SearchInventoryItemRequest;
+import com.vanesline.sales.dto.inventory.AdjustInventoryRequest;
 import com.vanesline.sales.dto.inventory.InventoryItemDto;
 import com.vanesline.sales.entity.Inventory;
 import com.vanesline.sales.entity.Product;
+import com.vanesline.sales.entity.StockMovement;
 import com.vanesline.sales.entity.User;
 import com.vanesline.sales.exception.EntityNotFoundException;
 import com.vanesline.sales.repository.InventoryRepository;
 import com.vanesline.sales.repository.ProductRepository;
+import com.vanesline.sales.repository.StockMovementRepository;
 import com.vanesline.sales.repository.UserRepository;
 import com.vanesline.sales.service.contract.InventoryService;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,7 @@ public class InventoryServiceImpl implements InventoryService {
     private final InventoryRepository inventoryRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final StockMovementRepository stockMovementRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -99,6 +103,53 @@ public class InventoryServiceImpl implements InventoryService {
 
         inv.setQuantity(inv.getQuantity() - quantity);
         inventoryRepository.save(inv);
+    }
+
+    @Override
+    public InventoryResponse adjustStock(String username, UUID productId, AdjustInventoryRequest request) {
+        User user = userRepository.findByUsernameWithRolesAndPermissions(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
+        
+        UUID shopId = user.getShopId();
+
+        Inventory inv = inventoryRepository
+                .findByProductIdAndShopId(productId, shopId)
+                .orElseGet(() -> Inventory.builder()
+                        .productId(productId)
+                        .shopId(shopId)
+                        .quantity(0)
+                        .build());
+
+        int oldQuantity = inv.getQuantity() != null ? inv.getQuantity() : 0;
+        int newQuantity = request.getNewQuantity();
+        int quantityDiff = newQuantity - oldQuantity;
+
+        if (quantityDiff == 0) {
+            return toResponse(inv);
+        }
+
+        inv.setQuantity(newQuantity);
+        inventoryRepository.save(inv);
+
+        String combinedNote = "";
+        if (request.getReason() != null && !request.getReason().trim().isEmpty()) {
+            combinedNote += "[" + request.getReason().trim() + "] ";
+        }
+        if (request.getNote() != null && !request.getNote().trim().isEmpty()) {
+            combinedNote += request.getNote().trim();
+        }
+
+        StockMovement movement = StockMovement.builder()
+                .productId(productId)
+                .shopId(shopId)
+                .movementType("ADJUST")
+                .quantity(quantityDiff)
+                .note(combinedNote.trim())
+                .build();
+        
+        stockMovementRepository.save(movement);
+
+        return toResponse(inv);
     }
 
 private InventoryResponse toResponse(Inventory inv) {
