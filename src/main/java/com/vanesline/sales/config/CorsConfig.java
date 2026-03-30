@@ -16,7 +16,8 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(List.of(
-                "http://localhost:4200"
+                "http://localhost:4200",
+                "https://smp-fe-v669.onrender.com"
         ));
 
         config.setAllowedMethods(List.of(
@@ -25,7 +26,10 @@ public class CorsConfig {
 
         config.setAllowedHeaders(List.of(
                 "Authorization",
-                "Content-Type"
+                "Content-Type",
+                "X-Requested-With",
+                "Accept",
+                "Origin"
         ));
 
         config.setAllowCredentials(true);
