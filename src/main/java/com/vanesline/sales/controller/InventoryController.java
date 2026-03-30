@@ -42,7 +42,6 @@ public class InventoryController {
     }
 
     @GetMapping("/{productId}/{shopId}")
-    @PreAuthorize("hasAuthority('inventory:read')")
     public ResponseEntity<InventoryResponse> getByProductAndShop(
             @PathVariable UUID productId,
             @PathVariable UUID shopId) {

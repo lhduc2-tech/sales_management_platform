@@ -116,6 +116,7 @@ public class RoleServiceImpl implements RoleService {
                                 () -> new EntityNotFoundException("Permission not found with id: " + permissionId)))
                 .collect(Collectors.toSet());
 
+        role.getPermissions().clear();
         role.getPermissions().addAll(permissions);
         roleRepository.save(role);
     }
