@@ -132,11 +132,10 @@ public class ActivationServiceImpl implements ActivationService {
                         staffRepository.save(staff);
                 });
 
-                // Assign STAFF role if not already assigned
-                boolean hasStaffRole = user.getUserRoles().stream()
-                                .anyMatch(ur -> ur.getRole().getCode().equals(STAFF_ROLE_CODE));
+                // Assign STAFF role if no role is assigned
+                boolean hasAnyRole = !user.getUserRoles().isEmpty();
 
-                if (!hasStaffRole) {
+                if (!hasAnyRole) {
                         Role staffRole = roleRepository.findByCode(STAFF_ROLE_CODE)
                                         .orElseThrow(() -> new RuntimeException(
                                                         "Role " + STAFF_ROLE_CODE + " not found. Please ensure roles are properly seeded."));
@@ -185,11 +184,10 @@ public class ActivationServiceImpl implements ActivationService {
                         staffRepository.save(staff);
                 });
 
-                // Assign STAFF role if not already assigned
-                boolean hasStaffRole = user.getUserRoles().stream()
-                                .anyMatch(ur -> ur.getRole().getCode().equals(STAFF_ROLE_CODE));
+                // Assign STAFF role if no role is assigned
+                boolean hasAnyRole = !user.getUserRoles().isEmpty();
 
-                if (!hasStaffRole) {
+                if (!hasAnyRole) {
                         Role staffRole = roleRepository.findByCode(STAFF_ROLE_CODE)
                                         .orElseThrow(
                                                         () -> new RuntimeException(

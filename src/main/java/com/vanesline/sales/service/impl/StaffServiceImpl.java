@@ -4,10 +4,12 @@ import com.vanesline.sales.dto.common.PageResponse;
 import com.vanesline.sales.dto.staff.StaffRequest;
 import com.vanesline.sales.dto.staff.StaffResponse;
 import com.vanesline.sales.dto.staff.StaffSearchCriteria;
+import com.vanesline.sales.entity.Role;
 import com.vanesline.sales.entity.Staff;
 import com.vanesline.sales.entity.User;
 import com.vanesline.sales.exception.DataConflictException;
 import com.vanesline.sales.exception.EntityNotFoundException;
+import com.vanesline.sales.repository.RoleRepository;
 import com.vanesline.sales.repository.StaffRepository;
 import com.vanesline.sales.repository.UserRepository;
 import com.vanesline.sales.service.contract.ActivationService;
@@ -33,6 +35,7 @@ public class StaffServiceImpl implements StaffService {
     private final UserRepository userRepository;
     private final ActivationService activationService;
     private final EmailService emailService;
+    private final RoleRepository roleRepository;
 
     @Value("${app.activation.base-url}")
     private String activationBaseUrl;
@@ -40,11 +43,13 @@ public class StaffServiceImpl implements StaffService {
     public StaffServiceImpl(StaffRepository staffRepository,
             UserRepository userRepository,
             ActivationService activationService,
-            EmailService emailService) {
+            EmailService emailService,
+            RoleRepository roleRepository) {
         this.staffRepository = staffRepository;
         this.userRepository = userRepository;
         this.activationService = activationService;
         this.emailService = emailService;
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -87,6 +92,21 @@ public class StaffServiceImpl implements StaffService {
         user.setUpdatedBy(userName);
 
         user = userRepository.save(user);
+
+        // Map position to user Role (if position is a valid role code like STAFF or WAREHOUSE)
+        if (StringUtils.hasText(request.getPosition())) {
+            Role role = roleRepository.findByCode(request.getPosition()).orElse(null);
+            if (role != null) {
+                com.vanesline.sales.entity.UserRole userRole = com.vanesline.sales.entity.UserRole.builder()
+                        .id(new com.vanesline.sales.entity.UserRole.UserRoleId(user.getId(), role.getId()))
+                        .user(user)
+                        .role(role)
+                        .assignedBy(userName)
+                        .build();
+                user.getUserRoles().add(userRole);
+                userRepository.save(user);
+            }
+        }
 
         // Create Staff linked to User
         Staff staff = Staff.builder()
@@ -144,6 +164,25 @@ public class StaffServiceImpl implements StaffService {
         staff.setShopId(request.getShopId());
         if (request.getPosition() != null) {
             staff.setPosition(request.getPosition());
+
+            // If position corresponds to a role, update the user's role
+            Role role = roleRepository.findByCode(request.getPosition()).orElse(null);
+            if (role != null) {
+                // Clear existing roles to reflect the new position
+                user.getUserRoles().clear();
+                
+                String currentUsername = SecurityContextHolder.getContext().getAuthentication() != null 
+                    ? SecurityContextHolder.getContext().getAuthentication().getName() 
+                    : "SYSTEM";
+                
+                com.vanesline.sales.entity.UserRole userRole = com.vanesline.sales.entity.UserRole.builder()
+                        .id(new com.vanesline.sales.entity.UserRole.UserRoleId(user.getId(), role.getId()))
+                        .user(user)
+                        .role(role)
+                        .assignedBy(currentUsername)
+                        .build();
+                user.getUserRoles().add(userRole);
+            }
         }
 
         // Update user fields
